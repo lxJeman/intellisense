@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Monitor Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .contenteditable {
+            border: 1px solid #ccc;
+            padding: 8px;
+            min-height: 100px;
+            border-radius: 3px;
+            background: #fafafa;
+        }
+        .instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Text Monitor Test Page</h1>
+    
+    <div class="instructions">
+        <h3>📋 Testing Instructions:</h3>
+        <ol>
+            <li>Load your extension in Chrome (chrome://extensions/)</li>
+            <li>Open Developer Tools (F12) and go to Console</li>
+            <li>Type in any of the fields below</li>
+            <li>Pause typing for 500ms to trigger the capture</li>
+            <li>Check console for "📝 Text input captured" logs</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>🔤 Standard Input Fields</h3>
+        <input type="text" placeholder="Regular text input" id="text-input">
+        <input type="email" placeholder="Email input" name="email">
+        <input type="password" placeholder="Password input">
+        <input type="search" placeholder="Search input">
+        <input placeholder="Default input (no type specified)">
+    </div>
+
+    <div class="test-section">
+        <h3>📝 Textarea</h3>
+        <textarea placeholder="Type your message here..." rows="4"></textarea>
+    </div>
+
+    <div class="test-section">
+        <h3>✏️ Contenteditable Elements</h3>
+        <div contenteditable="true" class="contenteditable">
+            Click here and start typing in this contenteditable div...
+        </div>
+        <br>
+        <div role="textbox" contenteditable="true" class="contenteditable">
+            This div has role="textbox" - try typing here too...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🎯 Dynamic Elements</h3>
+        <button onclick="addDynamicInput()">Add Dynamic Input Field</button>
+        <div id="dynamic-container"></div>
+    </div>
+
+    <script>
+        function addDynamicInput() {
+            const container = document.getElementById('dynamic-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = 'Dynamically added input - ' + Date.now();
+            input.style.margin = '5px 0';
+            container.appendChild(input);
+        }
+
+        // Add some console logging for testing
+        console.log('🧪 Test page loaded - ready for text monitoring tests');
+        
+        // Log when extension content script loads
+        setTimeout(() => {
+            if (window.textMonitor) {
+                console.log('✅ TextMonitor detected and ready');
+                console.log('📊 Initial stats:', window.textMonitor.getStats());
+            } else {
+                console.log('⚠️ TextMonitor not detected - make sure extension is loaded');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

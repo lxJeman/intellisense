@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 4: Text Correction & Autocomplete UI Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+        .contenteditable {
+            border: 2px solid #ccc;
+            padding: 12px;
+            min-height: 100px;
+            border-radius: 6px;
+            background: white;
+            font-size: 16px;
+        }
+        .contenteditable:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #2196f3;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .test-examples {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #ff9800;
+        }
+        .keyboard-shortcuts {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #9c27b0;
+        }
+        .feature-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        @media (max-width: 768px) {
+            .feature-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+        .demo-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        .demo-card h4 {
+            margin-top: 0;
+            color: #555;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active { background: #4caf50; }
+        .status-inactive { background: #f44336; }
+        .status-pending { background: #ff9800; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Phase 4: Text Correction & Autocomplete UI Test</h1>
+    
+    <div class="instructions">
+        <h3>📋 Testing Instructions</h3>
+        <ol>
+            <li><strong>Load Extension:</strong> Make sure your IntelliSense extension is loaded in Chrome</li>
+            <li><strong>Open DevTools:</strong> Press F12 and go to Console tab to see logs</li>
+            <li><strong>Test Grammar Correction:</strong> Type text with errors, wait for correction suggestions</li>
+            <li><strong>Test Autocomplete:</strong> Type partial words, press Tab to accept suggestions</li>
+            <li><strong>Check Real-time Processing:</strong> Watch for seamless text replacement</li>
+        </ol>
+        
+        <div class="keyboard-shortcuts">
+            <h4>⌨️ Keyboard Shortcuts:</h4>
+            <ul>
+                <li><strong>Tab:</strong> Accept autocomplete suggestion</li>
+                <li><strong>Escape:</strong> Dismiss suggestions</li>
+                <li><strong>Ctrl+Enter:</strong> Force grammar check</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>✨ Automatic Grammar Correction Tests</h3>
+        <div class="test-examples">
+            <strong>🚀 NEW FEATURE: Grammar errors are now AUTOMATICALLY fixed!</strong>
+            <p>Type these examples and watch them get corrected seamlessly without any user input:</p>
+            <ul>
+                <li>"This is a test sentance with grammer errors." → Auto-corrected!</li>
+                <li>"I have went to the store yesterday." → Auto-corrected!</li>
+                <li>"Their going to there house over they're." → Auto-corrected!</li>
+                <li>"The quick brown fox jump over the lazy dogs." → Auto-corrected!</li>
+            </ul>
+            <p><strong>🎯 Goal:</strong> You should feel like you're writing perfectly without errors!</p>
+        </div>
+        
+        <div class="feature-demo">
+            <div class="demo-card">
+                <h4>📝 Text Input</h4>
+                <input type="text" placeholder="Type text with grammar errors here..." id="grammar-test-1">
+            </div>
+            <div class="demo-card">
+                <h4>📧 Email Input</h4>
+                <input type="email" placeholder="Type email content with errors..." id="grammar-test-2">
+            </div>
+        </div>
+        
+        <div class="demo-card">
+            <h4>📄 Textarea</h4>
+            <textarea rows="4" placeholder="Type longer text with multiple grammar errors here..." id="grammar-test-3"></textarea>
+        </div>
+        
+        <div class="demo-card">
+            <h4>✏️ Contenteditable</h4>
+            <div contenteditable="true" class="contenteditable" id="grammar-test-4">
+                Click here and type text with grammar errors...
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>� Sentcence Completion Tests</h3>
+        <div class="test-examples">
+            <strong>🆕 NEW FEATURE: Sentence Completion with Preview Box!</strong>
+            <p>Type complete sentences ending with punctuation and get completion suggestions:</p>
+            <ul>
+                <li>"Hello, my name is John." → Get sentence completion in styled box</li>
+                <li>"The weather today is nice." → See completion preview with Apply button</li>
+                <li>"I am working on a project." → Completion box appears near input</li>
+                <li>"Thank you for your help!" → Smart sentence continuation</li>
+            </ul>
+            <p><strong>🎨 Features:</strong> Auto-resizing box, proper positioning, z-index 9999</p>
+        </div>
+
+        <div class="test-section">
+        <h3>🔄 Continuation Feature Tests</h3>
+        <div class="test-examples">
+            <strong>🆕 NEW FEATURE: Smart Continuation Suggestions!</strong>
+            <p>Stay focused on an input field without typing for 3 seconds to get continuation suggestions:</p>
+            <ul>
+                <li>Type some text, then stop typing but keep focus → Continuation appears</li>
+                <li>Click the continuation suggestion to apply it</li>
+                <li>Press Escape or Backspace to dismiss suggestions</li>
+                <li>Works based on context of what you've already written</li>
+            </ul>
+            <p><strong>💡 Goal:</strong> Help users continue their thoughts naturally</p>
+        </div>
+        
+        <div class="feature-demo">
+            <div class="demo-card">
+                <h4>🔍 Search Input</h4>
+                <input type="search" placeholder="Type partial words for autocomplete..." id="autocomplete-test-1">
+            </div>
+            <div class="demo-card">
+                <h4>🌐 URL Input</h4>
+                <input type="url" placeholder="Type partial words..." id="autocomplete-test-2">
+            </div>
+        </div>
+        
+        <div class="demo-card">
+            <h4>📝 Multi-line Autocomplete</h4>
+            <textarea rows="4" placeholder="Type partial words in multiple lines..." id="autocomplete-test-3"></textarea>
+        </div>
+        
+        <div class="demo-card">
+            <h4>📝 Rich Text Editor Simulation</h4>
+            <div contenteditable="true" class="contenteditable" role="textbox" id="autocomplete-test-4">
+                Type partial words here for autocomplete suggestions...
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🎯 Edge Cases & Advanced Features</h3>
+        
+        <div class="feature-demo">
+            <div class="demo-card">
+                <h4>🔄 Dynamic Input</h4>
+                <button onclick="addDynamicInput()">Add Dynamic Input</button>
+                <div id="dynamic-container"></div>
+            </div>
+            <div class="demo-card">
+                <h4>📊 Real-time Stats</h4>
+                <div id="stats-display">
+                    <p><span class="status-indicator status-pending"></span>Loading stats...</p>
+                </div>
+                <button onclick="refreshStats()">Refresh Stats</button>
+            </div>
+        </div>
+        
+        <div class="demo-card">
+            <h4>⚡ Performance Test</h4>
+            <textarea rows="3" placeholder="Type rapidly to test debouncing..." id="performance-test"></textarea>
+            <p><small>Type quickly and watch console for debounced processing</small></p>
+        </div>
+        
+        <div class="demo-card">
+            <h4>🔧 Settings Test</h4>
+            <button onclick="toggleGrammarCorrections()">Toggle Grammar Corrections</button>
+            <button onclick="toggleAutocomplete()">Toggle Autocomplete</button>
+            <p id="settings-status">Settings: Loading...</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 Expected Behavior</h3>
+        <div class="test-examples">
+            <h4>✅ What Should Happen:</h4>
+            <ul>
+                <li><strong>Grammar Corrections:</strong> Blue "Apply Fix" button appears for text with errors</li>
+                <li><strong>Autocomplete:</strong> Ghost text appears, press Tab to accept</li>
+                <li><strong>Real-time Processing:</strong> No disruption to typing flow</li>
+                <li><strong>Notifications:</strong> Success messages appear in top-right</li>
+                <li><strong>Debouncing:</strong> API calls only after typing pause</li>
+                <li><strong>Caret Preservation:</strong> Cursor position maintained after corrections</li>
+            </ul>
+        </div>
+        
+        <div class="test-examples">
+            <h4>🔍 Console Logs to Watch For:</h4>
+            <ul>
+                <li>"🎨 Text UI initialized"</li>
+                <li>"📝 Text input captured"</li>
+                <li>"✨ Grammar correction displayed"</li>
+                <li>"💡 Autocomplete suggestion displayed"</li>
+                <li>"✅ Grammar correction applied"</li>
+                <li>"💡 Autocomplete suggestion accepted"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let dynamicInputCounter = 0;
+        
+        function addDynamicInput() {
+            const container = document.getElementById('dynamic-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = `Dynamic input ${++dynamicInputCounter} - test here`;
+            input.style.margin = '5px 0';
+            input.style.width = '100%';
+            container.appendChild(input);
+            
+            console.log('🧪 Added dynamic input:', dynamicInputCounter);
+        }
+        
+        function refreshStats() {
+            if (window.intelliSense) {
+                const stats = window.intelliSense.getStats();
+                document.getElementById('stats-display').innerHTML = `
+                    <p><span class="status-indicator status-active"></span>Monitor: ${stats.monitor?.activeElements || 0} elements</p>
+                    <p><span class="status-indicator status-active"></span>UI: ${stats.ui?.activeElements || 0} active</p>
+                    <p><span class="status-indicator status-active"></span>Overlays: ${stats.ui?.suggestionOverlays || 0}</p>
+                `;
+            } else {
+                document.getElementById('stats-display').innerHTML = `
+                    <p><span class="status-indicator status-inactive"></span>IntelliSense not detected</p>
+                `;
+            }
+        }
+        
+        function toggleGrammarCorrections() {
+            if (window.intelliSense) {
+                window.intelliSense.toggleGrammarCorrections();
+                updateSettingsStatus();
+            }
+        }
+        
+        function toggleAutocomplete() {
+            if (window.intelliSense) {
+                window.intelliSense.toggleAutocomplete();
+                updateSettingsStatus();
+            }
+        }
+        
+        function updateSettingsStatus() {
+            if (window.textUI) {
+                const settings = window.textUI.settings;
+                document.getElementById('settings-status').textContent = 
+                    `Grammar: ${settings.showGrammarCorrections ? 'ON' : 'OFF'}, Autocomplete: ${settings.showAutocomplete ? 'ON' : 'OFF'}`;
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Phase 4 test page loaded');
+            
+            // Check for IntelliSense after a delay
+            setTimeout(() => {
+                refreshStats();
+                updateSettingsStatus();
+                
+                if (window.textMonitor) {
+                    console.log('✅ TextMonitor detected');
+                }
+                if (window.textUI) {
+                    console.log('✅ TextUI detected');
+                }
+                if (window.intelliSense) {
+                    console.log('✅ IntelliSense API detected');
+                }
+            }, 2000);
+            
+            // Auto-refresh stats every 10 seconds
+            setInterval(refreshStats, 10000);
+        });
+        
+        // Add some test event listeners
+        document.addEventListener('input', (event) => {
+            if (event.target.matches('input, textarea, [contenteditable]')) {
+                console.log('📝 Input detected on:', event.target.tagName, event.target.value || event.target.textContent);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -38,7 +38,6 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    newtab: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.jsx'),
     options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
@@ -138,6 +137,15 @@ var options = {
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(['NODE_ENV']),
+    // Define plugin to inject environment variables at build time
+    new webpack.DefinePlugin({
+      'process.env.AI_API_KEY': JSON.stringify(
+        process.env.AI_API_KEY || process.env.AI || ''
+      ),
+      'process.env.AI_BASE_URL': JSON.stringify(
+        process.env.AI_BASE_URL || 'https://api.groq.com/openai/v1'
+      ),
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -183,12 +191,6 @@ var options = {
           force: true,
         },
       ],
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Newtab', 'index.html'),
-      filename: 'newtab.html',
-      chunks: ['newtab'],
-      cache: false,
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'pages', 'Options', 'index.html'),

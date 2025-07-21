@@ -22,6 +22,8 @@
 
 # secrets
 secrets.*.js
+.env
 
 # misc
 project
+.vscode
