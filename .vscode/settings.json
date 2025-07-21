@@ -1,11 +1,19 @@
 {
   "editor.formatOnSave": true,
   "cSpell.words": [
+    "avec",
+    "cele",
+    "cette",
     "contenteditable",
+    "dans",
+    "eine",
     "groq",
     "Groq",
     "lineview",
+    "pentru",
     "sentance",
-    "sockjs"
+    "Sentcence",
+    "sockjs",
+    "sunt"
   ]
 }
