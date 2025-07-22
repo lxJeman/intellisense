@@ -192,22 +192,24 @@ class GroqAPIWrapper {
   /**
    * Correct a single sentence using API
    */
-  async correctSingleSentence(sentence, detectedLanguage) {
+  async correctSingleSentence(sentence) {
     const completion = await this.groq.chat.completions.create({
       model: 'llama3-8b-8192',
       messages: [
         {
           role: 'system',
-          content: `You are a multilingual grammar correction assistant. Your task is to:
-1. Correct grammar, spelling, and punctuation errors in the ORIGINAL language
-2. MAINTAIN the original language - DO NOT translate to English
-3. Preserve the original meaning, tone, and style
-4. Return ONLY the corrected text, no explanations or quotes
-5. If the text is already correct, return it unchanged
-6. Keep the same formatting and structure
-7. CRITICAL: Respond in the SAME language as the input text
+          content: `Fix grammar errors ONLY. DO NOT TRANSLATE.
 
-Detected language: ${detectedLanguage}`,
+INPUT LANGUAGE = OUTPUT LANGUAGE
+English input → English output
+Spanish input → Spanish output  
+Portuguese input → Portuguese output
+French input → French output
+
+FORBIDDEN: Translation, language change
+ALLOWED: Grammar fixes only
+
+Return corrected text in SAME language as input.`,
         },
         {
           role: 'user',
@@ -239,10 +241,6 @@ Detected language: ${detectedLanguage}`,
         text.substring(0, 50) + '...'
       );
 
-      // Detect language
-      const detectedLanguage = this.detectLanguage(text);
-      console.log('🌍 Detected language:', detectedLanguage);
-
       // Split text into sentences
       const sentences = this.splitIntoSentences(text);
       console.log(`📝 Split into ${sentences.length} sentences`);
@@ -259,15 +257,13 @@ Detected language: ${detectedLanguage}`,
         const sentence = sentences[i];
         const isLastSentence = i === sentences.length - 1;
 
-        // Check cache first
-        let cachedCorrection = this.getCachedSentence(sentence);
-
-        if (cachedCorrection) {
-          // Use cached correction
-          correctedSentences.push(cachedCorrection);
-          if (cachedCorrection !== sentence) hasAnyChanges = true;
-          continue;
-        }
+        // DISABLE CACHE - Force fresh AI responses to prevent old translations
+        // let cachedCorrection = this.getCachedSentence(sentence);
+        // if (cachedCorrection) {
+        //   correctedSentences.push(cachedCorrection);
+        //   if (cachedCorrection !== sentence) hasAnyChanges = true;
+        //   continue;
+        // }
 
         if (isLastSentence) {
           // Apply 3-second rate limiting for last sentence only
@@ -282,11 +278,9 @@ Detected language: ${detectedLanguage}`,
           const correctedSentence = await new Promise((resolve) => {
             this.lastSentenceTimer = setTimeout(async () => {
               try {
-                const corrected = await this.correctSingleSentence(
-                  sentence,
-                  detectedLanguage
-                );
-                this.setCachedSentence(sentence, corrected);
+                const corrected = await this.correctSingleSentence(sentence);
+                // DISABLE CACHING - Don't cache to prevent translation persistence
+                // this.setCachedSentence(sentence, corrected);
                 resolve(corrected);
               } catch (error) {
                 console.error('❌ Last sentence correction failed:', error);
@@ -305,10 +299,10 @@ Detected language: ${detectedLanguage}`,
 
           try {
             const correctedSentence = await this.correctSingleSentence(
-              sentence,
-              detectedLanguage
+              sentence
             );
-            this.setCachedSentence(sentence, correctedSentence);
+            // DISABLE CACHING - Don't cache to prevent translation persistence
+            // this.setCachedSentence(sentence, correctedSentence);
             correctedSentences.push(correctedSentence);
             if (correctedSentence !== sentence) hasAnyChanges = true;
           } catch (error) {
@@ -326,7 +320,6 @@ Detected language: ${detectedLanguage}`,
         original: text,
         hasChanges: hasAnyChanges,
         sentenceCount: sentences.length,
-        detectedLanguage,
         model: 'llama3-8b-8192',
         timestamp: Date.now(),
       };
@@ -534,7 +527,29 @@ Detected language: ${detectedLanguage}`,
    */
   clearCache() {
     this.requestCache.clear();
+    this.sentenceCache.clear();
     console.log('🗑️ API cache cleared');
+  }
+
+  /**
+   * Force clear all caches and reset
+   */
+  forceClearAllCaches() {
+    this.requestCache.clear();
+    this.sentenceCache.clear();
+    // Clear any browser storage if exists
+    if (typeof localStorage !== 'undefined') {
+      Object.keys(localStorage).forEach((key) => {
+        if (
+          key.includes('groq') ||
+          key.includes('grammar') ||
+          key.includes('sentence')
+        ) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
+    console.log('🧹 FORCE CLEARED ALL CACHES - NO MORE TRANSLATIONS!');
   }
 }
 
