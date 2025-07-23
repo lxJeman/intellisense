@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Add language detection AI method
+- [x] 1. Add language detection AI method
 
   - Create `detectLanguageWithAI(text)` method in GroqAPIWrapper class
   - Implement simple AI prompt that returns only language name as single word

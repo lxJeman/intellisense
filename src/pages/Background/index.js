@@ -38,6 +38,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleShortAIAnswerRequest(message.data, sender, sendResponse);
       break;
 
+    case 'GET_USER_PREFERENCES':
+      handleGetUserPreferences(sendResponse);
+      break;
+
+    case 'SAVE_USER_PREFERENCES':
+      handleSaveUserPreferences(message.data, sendResponse);
+      break;
+
+    case 'DETECT_LANGUAGE':
+      handleDetectLanguage(message.data, sendResponse);
+      break;
+
+    case 'REQUEST_ENHANCED_GRAMMAR_CORRECTION':
+      handleEnhancedGrammarCorrectionRequest(
+        message.data,
+        sender,
+        sendResponse
+      );
+      break;
+
+    case 'REPORT_CORRECTION_ISSUE':
+      handleReportCorrectionIssue(message.data, sender, sendResponse);
+      break;
+
     default:
       console.warn('Unknown message type:', message.type);
       sendResponse({ success: false, error: 'Unknown message type' });
@@ -61,14 +85,20 @@ async function handleTextInputCapture(inputData, sender, sendResponse) {
   try {
     // Auto-process text if it's long enough
     if (inputData.textContent.length > 10) {
-      const result = await requestManager.requestGrammarCorrection(
+      // Use enhanced grammar correction with safe defaults
+      const result = await groqAPI.correctGrammarWithUserPrefs(
         inputData.textContent,
-        inputData.elementId,
-        groqAPI
+        {
+          // Override with safe defaults to prevent unwanted translation
+          allowTranslation: false,
+          preserveMeaning: true,
+          fixOnly: 'both',
+        }
       );
 
-      console.log('📄 Grammar correction result:', {
+      console.log('📄 Enhanced grammar correction result:', {
         hasChanges: result.hasChanges,
+        detectedLanguage: result.detectedLanguage,
         originalLength: result.original?.length,
         correctedLength: result.corrected?.length,
       });
@@ -104,11 +134,13 @@ async function handleGrammarCorrectionRequest(
       requestData.text.substring(0, 50) + '...'
     );
 
-    const result = await requestManager.requestGrammarCorrection(
-      requestData.text,
-      requestData.elementId,
-      groqAPI
-    );
+    // Use enhanced grammar correction with safe defaults
+    const result = await groqAPI.correctGrammarWithUserPrefs(requestData.text, {
+      // Override with safe defaults to prevent unwanted translation
+      allowTranslation: false,
+      preserveMeaning: true,
+      fixOnly: 'both',
+    });
 
     sendResponse({
       success: true,
@@ -196,6 +228,141 @@ async function handleShortAIAnswerRequest(requestData, sender, sendResponse) {
     });
   } catch (error) {
     console.error('❌ Short AI answer failed:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle get user preferences request
+ */
+async function handleGetUserPreferences(sendResponse) {
+  try {
+    console.log('🎯 User preferences requested');
+
+    const preferences = await groqAPI.getUserPreferences();
+
+    sendResponse({
+      success: true,
+      data: preferences,
+    });
+  } catch (error) {
+    console.error('❌ Failed to get user preferences:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle save user preferences request
+ */
+async function handleSaveUserPreferences(preferences, sendResponse) {
+  try {
+    console.log('💾 Saving user preferences:', preferences);
+
+    const savedPrefs = await groqAPI.saveUserPreferences(preferences);
+
+    sendResponse({
+      success: true,
+      data: savedPrefs,
+    });
+  } catch (error) {
+    console.error('❌ Failed to save user preferences:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle language detection request
+ */
+function handleDetectLanguage(requestData, sendResponse) {
+  try {
+    console.log(
+      '🔍 Language detection requested for:',
+      requestData.text.substring(0, 30) + '...'
+    );
+
+    const detectedLanguage = groqAPI.detectLanguageSmart(requestData.text);
+
+    sendResponse({
+      success: true,
+      data: {
+        language: detectedLanguage,
+        text: requestData.text,
+        timestamp: Date.now(),
+      },
+    });
+  } catch (error) {
+    console.error('❌ Language detection failed:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle enhanced grammar correction request with user options
+ */
+async function handleEnhancedGrammarCorrectionRequest(
+  requestData,
+  sender,
+  sendResponse
+) {
+  try {
+    console.log('🔧 Enhanced grammar correction requested with options:', {
+      textLength: requestData.text.length,
+      options: requestData.options,
+    });
+
+    const result = await groqAPI.correctGrammarWithOptions(
+      requestData.text,
+      requestData.options
+    );
+
+    sendResponse({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('❌ Enhanced grammar correction failed:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle correction issue report
+ */
+async function handleReportCorrectionIssue(requestData, sender, sendResponse) {
+  try {
+    console.log('📝 Correction issue reported:', {
+      issueType: requestData.issueType,
+      elementId: requestData.elementId,
+    });
+
+    const report = await groqAPI.reportCorrectionIssue(
+      requestData.originalText,
+      requestData.correctedText || requestData.originalText,
+      requestData.issueType,
+      requestData.userFeedback || ''
+    );
+
+    sendResponse({
+      success: true,
+      data: report,
+    });
+  } catch (error) {
+    console.error('❌ Failed to report correction issue:', error);
     sendResponse({
       success: false,
       error: error.message,
