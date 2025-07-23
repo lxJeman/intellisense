@@ -12,7 +12,7 @@
   "icons": {
     "128": "icon-128.png"
   },
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage"],
   "host_permissions": ["https://api.groq.com/*"],
   "content_scripts": [
     {

@@ -218,33 +218,33 @@ class TextUI {
       // STEP 1: Grammar correction
       console.log('📝 Step 1: Grammar correction');
       await this.requestAutomaticGrammarCorrection(element, text);
-      
+
       // Wait 3 seconds after grammar correction
       console.log('⏳ Waiting 3 seconds after grammar correction...');
       await this.delay(3000);
-      
+
       // Get the latest text after grammar correction
       const updatedText = this.getElementText(element);
-      
+
       // STEP 2: Autocomplete (for partial words)
       console.log('📝 Step 2: Autocomplete check');
       const lastWord = this.getLastPartialWord(updatedText);
       if (lastWord && lastWord.length > 2 && this.settings.showAutocomplete) {
         console.log('💡 Triggering autocomplete for partial word:', lastWord);
         await this.requestAutocomplete(element, updatedText, lastWord);
-        
+
         // Wait 3 seconds after autocomplete
         console.log('⏳ Waiting 3 seconds after autocomplete...');
         await this.delay(3000);
       }
-      
+
       // Get the latest text again
       const finalText = this.getElementText(element);
-      
+
       // STEP 3: Sentence completion or continuation
       console.log('📝 Step 3: Sentence completion/continuation check');
       const isComplete = /[.!?]\s*$/.test(finalText.trim());
-      
+
       if (isComplete && finalText.length > 10) {
         // Complete sentence - offer sentence completion
         console.log('📄 Triggering sentence completion');
@@ -263,11 +263,7 @@ class TextUI {
    * Utility function to create delays
    */
   delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-    // Track processed text
-    this.processedTexts.set(elementId, textHash);
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async requestGrammarCorrection(element, text) {
@@ -473,13 +469,14 @@ class TextUI {
 
       // Only proceed if the text hasn't changed significantly
       if (Math.abs(latestText.length - text.length) > 10) {
-        console.log('⚠️ Text changed significantly, skipping grammar correction');
+        console.log(
+          '⚠️ Text changed significantly, skipping grammar correction'
+        );
         return;
       }
 
       // NEW: Smart sentence-level processing
       await this.smartSentenceCorrection(element, latestText);
-
     } catch (error) {
       console.error('Smart grammar correction failed:', error);
     }
@@ -492,12 +489,14 @@ class TextUI {
    */
   async smartSentenceCorrection(element, text) {
     const elementId = this.getElementId(element);
-    
+
     // Split text into sentences
     const sentences = this.splitIntoSentences(text);
     if (sentences.length === 0) return;
 
-    console.log(`📝 Processing ${sentences.length} sentences for smart correction`);
+    console.log(
+      `📝 Processing ${sentences.length} sentences for smart correction`
+    );
 
     let correctedText = '';
     let hasAnyChanges = false;
@@ -510,7 +509,8 @@ class TextUI {
       if (isLastSentence) {
         // LAST SENTENCE: Apply 3-second rate limiter
         console.log('⏰ Last sentence - applying rate limiter');
-        const lastSentenceTime = this.lastCorrectionTime.get(elementId + '_last') || 0;
+        const lastSentenceTime =
+          this.lastCorrectionTime.get(elementId + '_last') || 0;
         const now = Date.now();
 
         if (now - lastSentenceTime < 3000) {
@@ -518,20 +518,28 @@ class TextUI {
           correctedText += sentence;
         } else {
           // Process last sentence with rate limiter
-          const correctedSentence = await this.processSentenceWithCache(sentence, elementId + '_last');
+          const correctedSentence = await this.processSentenceWithCache(
+            sentence,
+            elementId + '_last'
+          );
           correctedText += correctedSentence;
           this.lastCorrectionTime.set(elementId + '_last', now);
-          
+
           if (correctedSentence !== sentence) {
             hasAnyChanges = true;
           }
         }
       } else {
         // PREVIOUS SENTENCES: Process immediately and cache
-        console.log(`📄 Processing previous sentence ${i + 1}/${sentences.length - 1}`);
-        const correctedSentence = await this.processSentenceWithCache(sentence, elementId + '_' + i);
+        console.log(
+          `📄 Processing previous sentence ${i + 1}/${sentences.length - 1}`
+        );
+        const correctedSentence = await this.processSentenceWithCache(
+          sentence,
+          elementId + '_' + i
+        );
         correctedText += correctedSentence;
-        
+
         if (correctedSentence !== sentence) {
           hasAnyChanges = true;
         }
@@ -544,7 +552,7 @@ class TextUI {
       this.applyAutomaticGrammarCorrection(element, {
         corrected: correctedText,
         original: text,
-        hasChanges: true
+        hasChanges: true,
       });
     } else {
       console.log('✅ No corrections needed');
@@ -573,17 +581,20 @@ class TextUI {
         type: 'REQUEST_GRAMMAR_CORRECTION',
         data: {
           text: sentence.trim(),
-          elementId: cacheKey
-        }
+          elementId: cacheKey,
+        },
       });
 
       if (response.success && response.data.hasChanges) {
         const corrected = response.data.corrected;
-        
+
         // Cache the correction
         this.cacheSentenceCorrection(cacheKey, sentence, corrected);
-        
-        console.log('✅ Sentence corrected and cached:', sentence.substring(0, 30) + '...');
+
+        console.log(
+          '✅ Sentence corrected and cached:',
+          sentence.substring(0, 30) + '...'
+        );
         return corrected + (sentence.endsWith(' ') ? ' ' : '');
       } else {
         // Cache that no correction was needed
@@ -601,8 +612,10 @@ class TextUI {
    */
   splitIntoSentences(text) {
     // Simple sentence splitting - can be enhanced
-    const sentences = text.split(/([.!?]+\s+)/).filter(s => s.trim().length > 0);
-    
+    const sentences = text
+      .split(/([.!?]+\s+)/)
+      .filter((s) => s.trim().length > 0);
+
     // Recombine sentences with their punctuation
     const result = [];
     for (let i = 0; i < sentences.length; i += 2) {
@@ -612,7 +625,7 @@ class TextUI {
         result.push(sentence + punctuation);
       }
     }
-    
+
     return result;
   }
 
@@ -626,14 +639,14 @@ class TextUI {
 
     this.sentenceCache.set(cacheKey + ':' + original.trim(), {
       corrected: corrected,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Limit cache size
     if (this.sentenceCache.size > 100) {
       const entries = Array.from(this.sentenceCache.entries());
       entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
-      
+
       // Remove oldest 20 entries
       for (let i = 0; i < 20; i++) {
         this.sentenceCache.delete(entries[i][0]);
@@ -650,7 +663,8 @@ class TextUI {
     }
 
     const cached = this.sentenceCache.get(cacheKey + ':' + sentence.trim());
-    if (cached && Date.now() - cached.timestamp < 300000) { // 5 minutes cache
+    if (cached && Date.now() - cached.timestamp < 300000) {
+      // 5 minutes cache
       return cached.corrected;
     }
 

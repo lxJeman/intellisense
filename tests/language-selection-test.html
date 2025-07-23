@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Language Selection Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section {
+        background: white;
+        margin-bottom: 30px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 8px;
+      }
+
+      .test-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        transition: border-color 0.2s;
+      }
+
+      .test-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      }
+
+      textarea.test-input {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .test-description {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: #0c5460;
+      }
+
+      .sample-texts {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .sample-text {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .sample-text:hover {
+        background: #e9ecef;
+        border-color: #007bff;
+      }
+
+      .sample-text .label {
+        font-weight: 600;
+        color: #007bff;
+        margin-bottom: 5px;
+      }
+
+      .sample-text .text {
+        font-size: 14px;
+        color: #333;
+      }
+
+      .instructions {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+
+      .instructions h3 {
+        margin-top: 0;
+        color: #856404;
+      }
+
+      .instructions ol {
+        margin-bottom: 0;
+        color: #856404;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🌐 Language Selection Test</h1>
+      <p>
+        Test the new language selection feature with translation and correction
+      </p>
+    </div>
+
+    <div class="instructions">
+      <h3>📋 How to Test</h3>
+      <ol>
+        <li>
+          <strong>Open the extension popup</strong> (click the extension icon)
+        </li>
+        <li>
+          <strong>Select your target language</strong> from the "🌐 Translation
+          Language" dropdown
+        </li>
+        <li><strong>Type or paste text</strong> in the textareas below</li>
+        <li><strong>Wait 3-5 seconds</strong> for processing</li>
+        <li>
+          <strong>Verify</strong> that text gets corrected and translated to
+          your selected language
+        </li>
+      </ol>
+    </div>
+
+    <!-- English to Other Languages -->
+    <div class="test-section">
+      <h2>🇺🇸 ➡️ 🌍 English to Other Languages</h2>
+      <div class="test-description">
+        <strong>Test:</strong> Type English text and see it get translated to
+        your selected language in the popup.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="english-test"
+        placeholder="Type English text here..."
+      >
+Hello, I want to become a senior software engineer and work on exciting projects.</textarea
+      >
+
+      <div class="sample-texts">
+        <div
+          class="sample-text"
+          onclick="fillText('english-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🔤 Simple English</div>
+          <div class="text">Hello world, how are you today?</div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('english-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">💼 Professional English</div>
+          <div class="text">
+            I would like to schedule a meeting to discuss the project
+            requirements.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('english-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🎓 Academic English</div>
+          <div class="text">
+            The research demonstrates significant improvements in machine
+            learning algorithms.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other Languages to Selected Language -->
+    <div class="test-section">
+      <h2>🌍 ➡️ 🎯 Other Languages to Selected Language</h2>
+      <div class="test-description">
+        <strong>Test:</strong> Type text in various languages and see it get
+        translated to your selected language.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="multilang-test"
+        placeholder="Type text in any language here..."
+      >
+Bonjour, je suis un développeur logiciel et j'aime créer des applications.</textarea
+      >
+
+      <div class="sample-texts">
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🇫🇷 French</div>
+          <div class="text">Bonjour, comment allez-vous aujourd'hui?</div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🇪🇸 Spanish</div>
+          <div class="text">Hola, me gustaría aprender programación.</div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🇩🇪 German</div>
+          <div class="text">Guten Tag, ich bin Softwareentwickler.</div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🇮🇹 Italian</div>
+          <div class="text">
+            Ciao, voglio diventare un ingegnere software senior.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🇵🇹 Portuguese</div>
+          <div class="text">
+            Olá, eu quero me tornar um desenvolvedor sênior.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🇷🇺 Russian</div>
+          <div class="text">
+            Привет, я хочу стать старшим разработчиком программного обеспечения.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grammar Correction Test -->
+    <div class="test-section">
+      <h2>✏️ Grammar Correction in Selected Language</h2>
+      <div class="test-description">
+        <strong>Test:</strong> Type text with grammar errors and see it get
+        corrected in your selected language.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="grammar-test"
+        placeholder="Type text with grammar errors..."
+      >
+This are a test sentence with some grammar error that need to be fix and translate.</textarea
+      >
+
+      <div class="sample-texts">
+        <div
+          class="sample-text"
+          onclick="fillText('grammar-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">❌ Grammar Errors</div>
+          <div class="text">
+            I wants to became a senior developer and work on actual project.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('grammar-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">❌ Spelling Errors</div>
+          <div class="text">
+            I need to updat my resum and aplly for the senoir position.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('grammar-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">❌ Mixed Errors</div>
+          <div class="text">
+            This are my favorit programming languag and I wants to learn more.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expected Results -->
+    <div class="test-section">
+      <h2>✅ Expected Results</h2>
+      <div class="test-description">
+        <strong>What should happen:</strong>
+        <ul>
+          <li>
+            🎯 <strong>All text gets translated</strong> to your selected
+            language from the popup
+          </li>
+          <li>
+            ✏️ <strong>Grammar errors get fixed</strong> during translation
+          </li>
+          <li>
+            🔄 <strong>Changes apply immediately</strong> when you change
+            language in popup
+          </li>
+          <li>🌐 <strong>Works with all languages</strong> in the dropdown</li>
+          <li>
+            📝 <strong>Maintains meaning and context</strong> during translation
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      function fillText(elementId, text) {
+        const element = document.getElementById(elementId);
+        element.value = text;
+        element.focus();
+
+        // Trigger input event to activate the extension
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      // Log test page loaded
+      console.log(`
+🌐 Language Selection Test Page Loaded!
+
+Instructions:
+1. Open extension popup
+2. Select target language from dropdown
+3. Type or click sample texts
+4. Watch text get translated to selected language
+
+Expected behavior:
+- All text translates to selected language
+- Grammar errors get fixed during translation
+- Changes apply immediately when language is changed
+        `);
+    </script>
+  </body>
+</html>

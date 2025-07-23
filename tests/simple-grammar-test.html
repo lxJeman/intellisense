@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Grammar Correction Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section {
+        background: white;
+        margin-bottom: 30px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #28a745;
+        padding-bottom: 8px;
+      }
+
+      .test-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        transition: border-color 0.2s;
+      }
+
+      .test-input:focus {
+        outline: none;
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+      }
+
+      textarea.test-input {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .test-description {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: #155724;
+      }
+
+      .success-message {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 15px;
+        color: #0c5460;
+      }
+
+      .sample-texts {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .sample-text {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .sample-text:hover {
+        background: #e9ecef;
+        border-color: #28a745;
+      }
+
+      .sample-text .label {
+        font-weight: 600;
+        color: #28a745;
+        margin-bottom: 5px;
+      }
+
+      .sample-text .text {
+        font-size: 14px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>✅ Simple Grammar Correction Test</h1>
+      <p>
+        Test grammar correction without any language detection - just pure
+        grammar fixes
+      </p>
+    </div>
+
+    <!-- No Translation Test -->
+    <div class="test-section">
+      <h2>🚫 No Translation Test</h2>
+      <div class="test-description">
+        <strong>Goal:</strong> Verify that text with international words like
+        "senior", "resume", "actual" stays in English and only gets grammar
+        corrections, NOT translations.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="no-translation-test"
+        placeholder="Type text with international words..."
+      >
+I want to become a senior SWE in NYC and update my resume for the actual position.</textarea
+      >
+
+      <div class="success-message">
+        ✅ <strong>Expected Result:</strong> Text should stay in English with
+        only grammar fixes (if needed). No translation to Italian, Portuguese,
+        Spanish, or any other language.
+      </div>
+    </div>
+
+    <!-- Grammar Correction Test -->
+    <div class="test-section">
+      <h2>✏️ Grammar Correction Test</h2>
+      <div class="test-description">
+        <strong>Goal:</strong> Test that actual grammar errors get fixed while
+        preserving the original language.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="grammar-test"
+        placeholder="Type text with grammar errors..."
+      >
+This are a test sentence with some grammar error that need to be fix.</textarea
+      >
+
+      <div class="success-message">
+        ✅ <strong>Expected Result:</strong> Grammar errors should be fixed:
+        "This is a test sentence with some grammar errors that need to be
+        fixed."
+      </div>
+    </div>
+
+    <!-- Sample Texts -->
+    <div class="test-section">
+      <h2>📝 Sample Test Cases</h2>
+      <div class="test-description">
+        Click on any sample text below to test it. The extension should only fix
+        grammar, never translate.
+      </div>
+
+      <div class="sample-texts">
+        <div
+          class="sample-text"
+          onclick="fillText('no-translation-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🔥 Previously Problematic: "senior" trigger</div>
+          <div class="text">
+            I want to become a senior SWE and work on actual projects.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('grammar-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">✏️ Grammar Errors to Fix</div>
+          <div class="text">
+            This are my resume and I wants to apply for the job.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('no-translation-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🔥 International Words Mix</div>
+          <div class="text">
+            The senior developer will resume work on the actual fiesta project.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('grammar-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">✏️ Spelling + Grammar</div>
+          <div class="text">
+            I need to updat my resum and aplly for the senoir position.
+          </div>
+        </div>
+
+        <div
+          class="sample-text"
+          onclick="fillText('no-translation-test', this.querySelector('.text').textContent)"
+        >
+          <div class="label">🔥 Short Ambiguous Text</div>
+          <div class="text">Senior no actual resume.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="test-section">
+      <h2>📋 How to Test</h2>
+      <div class="test-description">
+        <ol>
+          <li>
+            <strong>Type or click sample texts</strong> in the textareas above
+          </li>
+          <li>
+            <strong>Wait 3-5 seconds</strong> for the extension to process the
+            text
+          </li>
+          <li>
+            <strong>Check the results:</strong>
+            <ul>
+              <li>✅ Grammar errors should be fixed</li>
+              <li>✅ Text should stay in the same language</li>
+              <li>❌ No translation should occur</li>
+              <li>❌ "Senior SWE" should NOT become Italian/Portuguese</li>
+            </ul>
+          </li>
+          <li><strong>Open browser console</strong> to see processing logs</li>
+        </ol>
+      </div>
+    </div>
+
+    <script>
+      function fillText(elementId, text) {
+        const element = document.getElementById(elementId);
+        element.value = text;
+        element.focus();
+
+        // Trigger input event to activate the extension
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      // Log test page loaded
+      console.log(`
+✅ Simple Grammar Correction Test Page Loaded!
+
+This page tests grammar correction WITHOUT language detection.
+
+Expected behavior:
+- Grammar errors get fixed
+- No translation occurs
+- "Senior SWE" stays in English
+- International words don't trigger language switching
+
+Watch the console for processing logs from the extension.
+        `);
+    </script>
+  </body>
+</html>
