@@ -1,6 +1,7 @@
 import { printLine } from './modules/print';
 import { TextMonitor } from './modules/textMonitor';
 import { TextUI } from './modules/textUI';
+import { LanguageUI } from './modules/languageUI';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -10,6 +11,7 @@ printLine("Using the 'printLine' function from the Print Module");
 // Initialize text monitoring and UI
 let textMonitor;
 let textUI;
+let languageUI;
 
 // Wait for DOM to be ready
 if (document.readyState === 'loading') {
@@ -18,7 +20,7 @@ if (document.readyState === 'loading') {
   initializeIntelliSense();
 }
 
-function initializeIntelliSense() {
+async function initializeIntelliSense() {
   try {
     // Initialize text monitoring
     textMonitor = new TextMonitor();
@@ -26,10 +28,17 @@ function initializeIntelliSense() {
     // Initialize UI system
     textUI = new TextUI(textMonitor);
 
+    // Initialize language UI system
+    languageUI = new LanguageUI(textUI);
+    await languageUI.init(); // Ensure proper async initialization
+
     // Connect UI to text monitor
     textMonitor.setUIHandler(textUI);
 
-    console.log('🚀 IntelliSense system initialized');
+    // Connect language UI to text UI
+    textUI.setLanguageUI(languageUI);
+
+    console.log('🚀 IntelliSense system with Language UI initialized');
 
     // Log stats periodically for debugging
     setInterval(() => {
@@ -88,10 +97,12 @@ function setupBackgroundMessageListener() {
 // Expose for debugging
 window.textMonitor = textMonitor;
 window.textUI = textUI;
+window.languageUI = languageUI;
 window.intelliSense = {
   getStats: () => ({
     monitor: textMonitor?.getStats(),
     ui: textUI?.getStats(),
+    language: languageUI?.getStats(),
   }),
   toggleGrammarCorrections: () => {
     if (textUI) {
@@ -105,6 +116,49 @@ window.intelliSense = {
       textUI.updateSettings({
         showAutocomplete: !textUI.settings.showAutocomplete,
       });
+    }
+  },
+  showLanguageControl: (element) => {
+    if (textUI && element) {
+      textUI.showLanguageControl(element);
+    } else {
+      console.log(
+        'Usage: intelliSense.showLanguageControl(document.querySelector("textarea"))'
+      );
+    }
+  },
+  detectLanguage: async (text) => {
+    if (!text) {
+      console.log('Usage: await intelliSense.detectLanguage("your text here")');
+      return;
+    }
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'DETECT_LANGUAGE',
+        data: { text },
+      });
+      console.log('Detected language:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Language detection failed:', error);
+    }
+  },
+  testEnhancedCorrection: async (text, options = {}) => {
+    if (!text) {
+      console.log(
+        'Usage: await intelliSense.testEnhancedCorrection("your text", { userLanguage: "english", allowTranslation: false })'
+      );
+      return;
+    }
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'REQUEST_ENHANCED_GRAMMAR_CORRECTION',
+        data: { text, elementId: 'test', options },
+      });
+      console.log('Enhanced correction result:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Enhanced correction failed:', error);
     }
   },
 };

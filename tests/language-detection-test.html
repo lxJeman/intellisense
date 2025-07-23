@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Language Detection Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section {
+        background: white;
+        margin-bottom: 30px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 8px;
+      }
+
+      .test-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        font-size: 16px;
+        margin-bottom: 15px;
+        transition: border-color 0.2s;
+      }
+
+      .test-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      }
+
+      textarea.test-input {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .test-description {
+        background: #e9ecef;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: #495057;
+      }
+
+      .test-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+      }
+
+      .test-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .test-btn.primary {
+        background: #007bff;
+        color: white;
+      }
+
+      .test-btn.primary:hover {
+        background: #0056b3;
+      }
+
+      .test-btn.secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .test-btn.secondary:hover {
+        background: #545b62;
+      }
+
+      .test-btn.success {
+        background: #28a745;
+        color: white;
+      }
+
+      .test-btn.success:hover {
+        background: #218838;
+      }
+
+      .test-btn.warning {
+        background: #ffc107;
+        color: #212529;
+      }
+
+      .test-btn.warning:hover {
+        background: #e0a800;
+      }
+
+      .keyboard-shortcuts {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .keyboard-shortcuts h3 {
+        margin-top: 0;
+        color: #0c5460;
+      }
+
+      .shortcut {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .shortcut-key {
+        background: #495057;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      .debug-panel {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        max-width: 300px;
+        z-index: 9999;
+      }
+
+      .debug-panel h4 {
+        margin-top: 0;
+        color: #007bff;
+      }
+
+      .debug-info {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+
+      .sample-texts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .sample-text {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .sample-text:hover {
+        background: #e9ecef;
+        border-color: #007bff;
+      }
+
+      .sample-text .language {
+        font-weight: 600;
+        color: #007bff;
+        margin-bottom: 5px;
+      }
+
+      .sample-text .text {
+        font-size: 14px;
+        color: #333;
+      }
+
+      .stats-display {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 15px;
+        font-family: monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🌐 Enhanced Language Detection & User Control Test</h1>
+      <p>
+        Test the new smart language detection system that fixes the "senior SWE"
+        translation problem
+      </p>
+    </div>
+
+    <!-- Problem Demonstration -->
+    <div class="test-section">
+      <h2>🔧 Problem Fix Demonstration</h2>
+      <div class="test-description">
+        <strong>Before:</strong> "I want to become a senior SWE" would get
+        translated to Portuguese because "senior" triggered false detection.<br />
+        <strong>After:</strong> Smart detection uses majority-word scoring to
+        correctly identify English.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="problem-demo"
+        placeholder="Type: I want to become a senior SWE in NYC"
+      >
+I want to become a senior SWE in NYC</textarea
+      >
+
+      <div class="test-buttons">
+        <button
+          class="test-btn primary"
+          onclick="testLanguageDetection('problem-demo')"
+        >
+          🔍 Detect Language
+        </button>
+        <button
+          class="test-btn success"
+          onclick="testEnhancedCorrection('problem-demo')"
+        >
+          ✏️ Test Enhanced Correction
+        </button>
+        <button
+          class="test-btn warning"
+          onclick="showLanguageControl('problem-demo')"
+        >
+          🌐 Show Language Control
+        </button>
+      </div>
+    </div>
+
+    <!-- Multi-language Testing -->
+    <div class="test-section">
+      <h2>🌍 Multi-language Detection Tests</h2>
+      <div class="test-description">
+        Test language detection across different languages and mixed content
+        scenarios.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="multilang-test"
+        placeholder="Try different languages or click sample texts below..."
+      ></textarea>
+
+      <div class="sample-texts">
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🇺🇸 English (with international words)</div>
+          <div class="text">
+            I need to update my resume and attend the fiesta senior event.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🇵🇹 Portuguese</div>
+          <div class="text">
+            Eu preciso atualizar meu currículo e participar do evento sênior.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🇪🇸 Spanish</div>
+          <div class="text">
+            Necesito actualizar mi currículum y asistir al evento senior.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🇫🇷 French</div>
+          <div class="text">
+            Je dois mettre à jour mon CV et assister à l'événement senior.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🇷🇺 Russian</div>
+          <div class="text">
+            Мне нужно обновить резюме и посетить мероприятие для старших.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('multilang-test', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🇯🇵 Japanese</div>
+          <div class="text">
+            履歴書を更新して、シニアイベントに参加する必要があります。
+          </div>
+        </div>
+      </div>
+
+      <div class="test-buttons">
+        <button
+          class="test-btn primary"
+          onclick="testLanguageDetection('multilang-test')"
+        >
+          🔍 Detect Language
+        </button>
+        <button
+          class="test-btn success"
+          onclick="testEnhancedCorrection('multilang-test')"
+        >
+          ✏️ Enhanced Correction
+        </button>
+        <button
+          class="test-btn warning"
+          onclick="showLanguageControl('multilang-test')"
+        >
+          🌐 Language Control
+        </button>
+      </div>
+    </div>
+
+    <!-- User Control Testing -->
+    <div class="test-section">
+      <h2>🎛️ User Control Features</h2>
+      <div class="test-description">
+        Test the new user control features: language override, "don't translate"
+        option, and error reporting.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="control-test"
+        placeholder="Type text to test user controls..."
+      >
+The actual senior developer will resume work on the project.</textarea
+      >
+
+      <div class="test-buttons">
+        <button
+          class="test-btn primary"
+          onclick="showLanguageControl('control-test')"
+        >
+          🌐 Open Language Control Panel
+        </button>
+        <button
+          class="test-btn secondary"
+          onclick="testWithOptions('control-test', {allowTranslation: false})"
+        >
+          🚫 Test: No Translation
+        </button>
+        <button
+          class="test-btn secondary"
+          onclick="testWithOptions('control-test', {allowTranslation: true})"
+        >
+          ✅ Test: Allow Translation
+        </button>
+        <button
+          class="test-btn warning"
+          onclick="testWithOptions('control-test', {userLanguage: 'portuguese'})"
+        >
+          🇵🇹 Force Portuguese
+        </button>
+      </div>
+    </div>
+
+    <!-- Edge Cases Testing -->
+    <div class="test-section">
+      <h2>🧪 Edge Cases & Problematic Scenarios</h2>
+      <div class="test-description">
+        Test scenarios that previously caused translation issues.
+      </div>
+
+      <textarea
+        class="test-input"
+        id="edge-cases"
+        placeholder="Test problematic scenarios..."
+      ></textarea>
+
+      <div class="sample-texts">
+        <div
+          class="sample-text"
+          onclick="fillText('edge-cases', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🔥 Problematic: "senior" trigger</div>
+          <div class="text">
+            The senior engineer will resume the actual work.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('edge-cases', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🔥 Problematic: "actual" trigger</div>
+          <div class="text">
+            The actual situation is different from what we expected.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('edge-cases', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🔥 Problematic: Mixed words</div>
+          <div class="text">
+            I need to update my resume for the senior fiesta event.
+          </div>
+        </div>
+        <div
+          class="sample-text"
+          onclick="fillText('edge-cases', this.querySelector('.text').textContent)"
+        >
+          <div class="language">🔥 Ambiguous: Short text</div>
+          <div class="text">Senior no.</div>
+        </div>
+      </div>
+
+      <div class="test-buttons">
+        <button
+          class="test-btn primary"
+          onclick="testLanguageDetection('edge-cases')"
+        >
+          🔍 Detect Language
+        </button>
+        <button
+          class="test-btn success"
+          onclick="testEnhancedCorrection('edge-cases')"
+        >
+          ✏️ Test Correction
+        </button>
+      </div>
+    </div>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+      <h4>🔧 Debug Info</h4>
+      <div class="debug-info" id="debug-stats">Loading...</div>
+      <div class="test-buttons">
+        <button class="test-btn secondary" onclick="refreshStats()">
+          🔄 Refresh
+        </button>
+        <button class="test-btn warning" onclick="clearCache()">
+          🗑️ Clear Cache
+        </button>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts -->
+    <div class="keyboard-shortcuts">
+      <h3>⌨️ Keyboard Shortcuts</h3>
+      <div class="shortcut">
+        <span>Show Language Control</span>
+        <span class="shortcut-key">Ctrl+Shift+L</span>
+      </div>
+      <div class="shortcut">
+        <span>Dismiss All Panels</span>
+        <span class="shortcut-key">Escape</span>
+      </div>
+      <div class="shortcut">
+        <span>Accept Suggestion</span>
+        <span class="shortcut-key">Tab</span>
+      </div>
+    </div>
+
+    <!-- Stats Display -->
+    <div class="stats-display" id="stats-display">
+      System stats will appear here...
+    </div>
+
+    <script>
+      // Test functions
+      async function testLanguageDetection(elementId) {
+        const element = document.getElementById(elementId);
+        const text = element.value;
+
+        if (!text.trim()) {
+          alert('Please enter some text first');
+          return;
+        }
+
+        try {
+          const result = await window.intelliSense.detectLanguage(text);
+          alert(
+            `Detected Language: ${result.language}\nText: "${text.substring(
+              0,
+              50
+            )}..."`
+          );
+        } catch (error) {
+          alert('Language detection failed: ' + error.message);
+        }
+      }
+
+      async function testEnhancedCorrection(elementId) {
+        const element = document.getElementById(elementId);
+        const text = element.value;
+
+        if (!text.trim()) {
+          alert('Please enter some text first');
+          return;
+        }
+
+        try {
+          const result = await window.intelliSense.testEnhancedCorrection(
+            text,
+            {
+              allowTranslation: false,
+              fixOnly: 'both',
+            }
+          );
+
+          if (result.hasChanges) {
+            const apply = confirm(
+              `Grammar correction available:\n\nOriginal: "${result.original}"\nCorrected: "${result.corrected}"\n\nApply correction?`
+            );
+            if (apply) {
+              element.value = result.corrected;
+            }
+          } else {
+            alert('No corrections needed!');
+          }
+        } catch (error) {
+          alert('Enhanced correction failed: ' + error.message);
+        }
+      }
+
+      function showLanguageControl(elementId) {
+        const element = document.getElementById(elementId);
+        if (window.intelliSense && window.intelliSense.showLanguageControl) {
+          window.intelliSense.showLanguageControl(element);
+        } else {
+          alert(
+            'Language control not available. Make sure the extension is loaded.'
+          );
+        }
+      }
+
+      async function testWithOptions(elementId, options) {
+        const element = document.getElementById(elementId);
+        const text = element.value;
+
+        if (!text.trim()) {
+          alert('Please enter some text first');
+          return;
+        }
+
+        try {
+          const result = await window.intelliSense.testEnhancedCorrection(
+            text,
+            options
+          );
+          console.log('Test result with options:', result);
+
+          const optionsStr = JSON.stringify(options, null, 2);
+          alert(
+            `Test completed with options:\n${optionsStr}\n\nResult: ${
+              result.hasChanges ? 'Changes made' : 'No changes'
+            }\nDetected Language: ${result.detectedLanguage}`
+          );
+        } catch (error) {
+          alert('Test failed: ' + error.message);
+        }
+      }
+
+      function fillText(elementId, text) {
+        const element = document.getElementById(elementId);
+        element.value = text;
+        element.focus();
+      }
+
+      function refreshStats() {
+        if (window.intelliSense) {
+          const stats = window.intelliSense.getStats();
+          document.getElementById('debug-stats').innerHTML = `
+                    <strong>Monitor:</strong> ${
+                      stats.monitor?.activeElements || 0
+                    } elements<br>
+                    <strong>UI:</strong> ${
+                      stats.ui?.activeElements || 0
+                    } active<br>
+                    <strong>Language:</strong> ${
+                      stats.language?.activeControls || 0
+                    } controls<br>
+                    <strong>Status:</strong> ${
+                      stats.language?.initialized ? '✅ Ready' : '⏳ Loading'
+                    }
+                `;
+
+          document.getElementById('stats-display').textContent = JSON.stringify(
+            stats,
+            null,
+            2
+          );
+        }
+      }
+
+      async function clearCache() {
+        try {
+          const response = await chrome.runtime.sendMessage({
+            type: 'CLEAR_CACHE',
+          });
+
+          if (response.success) {
+            alert('✅ Cache cleared successfully!');
+          } else {
+            alert('❌ Failed to clear cache');
+          }
+        } catch (error) {
+          alert('❌ Error: ' + error.message);
+        }
+      }
+
+      // Auto-refresh stats every 5 seconds
+      setInterval(refreshStats, 5000);
+
+      // Initial stats load
+      setTimeout(refreshStats, 1000);
+
+      // Test console commands info
+      console.log(`
+🌐 Enhanced Language Detection Test Page Loaded!
+
+Available console commands:
+- await intelliSense.detectLanguage("your text")
+- await intelliSense.testEnhancedCorrection("text", options)
+- intelliSense.showLanguageControl(element)
+- intelliSense.getStats()
+
+Test the "senior SWE" fix:
+- await intelliSense.detectLanguage("I want to become a senior SWE")
+- Should return "english" instead of "portuguese"
+
+Test enhanced correction:
+- await intelliSense.testEnhancedCorrection("I want to become a senior SWE", {allowTranslation: false})
+        `);
+    </script>
+  </body>
+</html>
