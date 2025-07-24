@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real-time Sentence Correction Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+        background: #f5f5f5;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        margin: 0 0 10px 0;
+        font-size: 2.5rem;
+      }
+
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #28a745;
+      }
+
+      .instructions {
+        background: #d4edda;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+      }
+
+      .instructions h3 {
+        margin-top: 0;
+        color: #155724;
+      }
+
+      textarea {
+        width: 100%;
+        padding: 15px;
+        margin: 10px 0;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: inherit;
+        min-height: 150px;
+        transition: border-color 0.2s ease;
+      }
+
+      textarea:focus {
+        border-color: #28a745;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+      }
+
+      .example-text {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-family: 'Courier New', monospace;
+        border-left: 3px solid #28a745;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .example-text:hover {
+        background: #e9ecef;
+      }
+
+      .example-text .label {
+        font-weight: bold;
+        color: #28a745;
+        margin-bottom: 5px;
+      }
+
+      .debug-controls {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+
+      button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+      }
+
+      button:hover {
+        background: #218838;
+      }
+
+      button.secondary {
+        background: #6c757d;
+      }
+
+      button.secondary:hover {
+        background: #545b62;
+      }
+
+      .status {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+        font-family: monospace;
+        font-size: 14px;
+        border: 1px solid #dee2e6;
+      }
+
+      .typing-demo {
+        background: #fff3cd;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #ffc107;
+      }
+
+      .typing-demo h4 {
+        margin-top: 0;
+        color: #856404;
+      }
+
+      .step {
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 4px;
+        border-left: 3px solid #ffc107;
+      }
+
+      .step strong {
+        color: #856404;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🚀 Real-time Sentence Correction</h1>
+      <p>Test immediate sentence-by-sentence grammar correction</p>
+    </div>
+
+    <div class="test-section">
+      <h3>🎯 How It Works Now</h3>
+      <div class="instructions">
+        <h3>Real-time Correction Process:</h3>
+        <ol>
+          <li>
+            <strong>Type normally</strong> - No interruption to your typing flow
+          </li>
+          <li>
+            <strong>Complete a sentence</strong> - End with <code>.</code>,
+            <code>?</code>, or <code>!</code>
+          </li>
+          <li>
+            <strong>Immediate correction</strong> - Sentence gets corrected
+            instantly
+          </li>
+          <li>
+            <strong>Continue typing</strong> - Keep writing while previous
+            sentences are perfected
+          </li>
+        </ol>
+        <p>
+          <strong>🔥 Key Feature:</strong> Each sentence is corrected the moment
+          you finish it with punctuation!
+        </p>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>🧪 Test Your Example</h3>
+      <div class="typing-demo">
+        <h4>📝 Step-by-Step Test:</h4>
+        <div class="step">
+          <strong>Step 1:</strong> Type "Hello evryone my nema is Alex."
+          <br /><small
+            >→ Should correct immediately to "Hello everyone my name is
+            Alex."</small
+          >
+        </div>
+        <div class="step">
+          <strong>Step 2:</strong> Continue typing "I like very much progarming
+          and im very good at web dev." <br /><small
+            >→ Should correct immediately to "I like programming very much and
+            I'm very good at web development."</small
+          >
+        </div>
+        <div class="step">
+          <strong>Step 3:</strong> Finish with "i would like to make new frisnts
+          todya." <br /><small
+            >→ Should correct immediately to "I would like to make new friends
+            today."</small
+          >
+        </div>
+      </div>
+
+      <textarea
+        id="main-test"
+        placeholder="Start typing your example text here... End each sentence with . ? or ! to see immediate correction!"
+      ></textarea>
+
+      <div class="debug-controls">
+        <button onclick="showDebugPanel()">Show Debug Panel</button>
+        <button onclick="clearText()" class="secondary">Clear Text</button>
+        <button onclick="fillExample()">Fill Example Text</button>
+        <button onclick="testTypingSimulation()">Simulate Typing</button>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>📋 Quick Test Examples</h3>
+      <p>Click any example to auto-fill the textarea:</p>
+
+      <div
+        class="example-text"
+        onclick="fillText(this.querySelector('.text').textContent)"
+      >
+        <div class="label">Your Original Example:</div>
+        <div class="text">
+          Hello evryone my nema is Alex. I like very much progarming and im very
+          good at web dev. i would like to make new frisnts todya.
+        </div>
+      </div>
+
+      <div
+        class="example-text"
+        onclick="fillText(this.querySelector('.text').textContent)"
+      >
+        <div class="label">Grammar Test:</div>
+        <div class="text">
+          She have three cats. They was playing yesterday. I are happy today.
+        </div>
+      </div>
+
+      <div
+        class="example-text"
+        onclick="fillText(this.querySelector('.text').textContent)"
+      >
+        <div class="label">Spelling Test:</div>
+        <div class="text">
+          The quick brown fox jump over the fence. I recieved a letter todya.
+          This is a beautifull day.
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>📊 System Status</h3>
+      <div id="status" class="status">Loading system status...</div>
+      <button onclick="refreshStatus()">Refresh Status</button>
+    </div>
+
+    <div class="test-section">
+      <h3>🔍 What to Watch For</h3>
+      <div class="instructions">
+        <h3>Expected Behavior:</h3>
+        <ul>
+          <li>
+            <strong>Console Logs:</strong> "🎯 SENTENCE COMPLETED! Triggering
+            immediate correction..."
+          </li>
+          <li>
+            <strong>Debug Panel:</strong> Real-time sentence processing status
+          </li>
+          <li>
+            <strong>Text Changes:</strong> Sentences corrected as you finish
+            them
+          </li>
+          <li>
+            <strong>No Waiting:</strong> Corrections happen immediately, not
+            after you stop typing
+          </li>
+        </ul>
+
+        <h3>Debug Commands:</h3>
+        <ul>
+          <li><code>Ctrl+Shift+D</code> - Toggle debug panel</li>
+          <li><code>F12</code> - Open browser console to see logs</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      let textarea = document.getElementById('main-test');
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('🧪 Real-time sentence correction test page loaded');
+        refreshStatus();
+
+        // Add input listener to show real-time feedback
+        textarea.addEventListener('input', (event) => {
+          const text = event.target.value;
+          const lastChar = text.charAt(text.length - 1);
+
+          if (/[.!?]/.test(lastChar)) {
+            console.log('🎯 Sentence ending detected:', lastChar);
+            console.log('📝 Current text:', text);
+          }
+        });
+
+        // Auto-refresh status every 5 seconds
+        setInterval(refreshStatus, 5000);
+      });
+
+      function fillText(text) {
+        textarea.value = text;
+        textarea.focus();
+        console.log('📝 Filled text:', text);
+      }
+
+      function clearText() {
+        textarea.value = '';
+        textarea.focus();
+        console.log('🗑️ Text cleared');
+      }
+
+      function fillExample() {
+        const exampleText =
+          'Hello evryone my nema is Alex. I like very much progarming and im very good at web dev. i would like to make new frisnts todya.';
+        fillText(exampleText);
+      }
+
+      function showDebugPanel() {
+        if (window.intelliSense && window.intelliSense.showDebugPanel) {
+          window.intelliSense.showDebugPanel();
+          console.log('🔧 Debug panel opened');
+        } else {
+          console.log('❌ IntelliSense not available');
+          alert(
+            "IntelliSense extension not detected. Please make sure it's loaded."
+          );
+        }
+      }
+
+      function refreshStatus() {
+        const statusEl = document.getElementById('status');
+
+        if (window.intelliSense) {
+          const stats = window.intelliSense.getStats();
+          statusEl.innerHTML = `
+✅ IntelliSense: Ready
+📊 Active Elements: ${stats.monitor?.activeElements || 0}
+🎨 UI Active: ${stats.ui?.activeElements || 0}
+🔧 Debug Entries: ${stats.debug?.logEntries || 0}
+⚙️ Real-time Correction: ${
+            window.textUI?.settings?.realtimeSentenceCorrection
+              ? 'Enabled'
+              : 'Disabled'
+          }
+
+Last Updated: ${new Date().toLocaleTimeString()}
+                `.trim();
+        } else {
+          statusEl.innerHTML = `
+❌ IntelliSense: Not detected
+Please ensure the extension is loaded and refresh the page.
+
+Troubleshooting:
+1. Check chrome://extensions/
+2. Ensure extension is enabled
+3. Reload this page
+                `.trim();
+        }
+      }
+
+      async function testTypingSimulation() {
+        console.log('🤖 Starting typing simulation...');
+
+        const testText =
+          'Hello evryone my nema is Alex. I like very much progarming and im very good at web dev. i would like to make new frisnts todya.';
+        textarea.value = '';
+        textarea.focus();
+
+        // Simulate typing character by character
+        for (let i = 0; i < testText.length; i++) {
+          textarea.value = testText.substring(0, i + 1);
+
+          // Trigger input event
+          const event = new Event('input', { bubbles: true });
+          textarea.dispatchEvent(event);
+
+          // Check if we just typed a sentence ending
+          const char = testText.charAt(i);
+          if (/[.!?]/.test(char)) {
+            console.log(
+              `🎯 Simulated sentence ending: "${char}" at position ${i}`
+            );
+            // Wait a bit longer after sentence endings to see correction
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          } else {
+            // Normal typing speed
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
+
+        console.log('🤖 Typing simulation completed');
+      }
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+          event.preventDefault();
+          showDebugPanel();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentence-by-Sentence Debug Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+        background: #f5f5f5;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        margin: 0 0 10px 0;
+        font-size: 2.5rem;
+      }
+
+      .header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+      }
+
+      .test-section {
+        background: white;
+        margin: 20px 0;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #007bff;
+      }
+
+      .test-section h3 {
+        margin-top: 0;
+        color: #333;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .instructions {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2196f3;
+      }
+
+      .debug-controls {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .control-group label {
+        font-weight: bold;
+        color: #555;
+        font-size: 0.9rem;
+      }
+
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      button:hover {
+        background: #0056b3;
+        transform: translateY(-1px);
+      }
+
+      button.secondary {
+        background: #6c757d;
+      }
+
+      button.secondary:hover {
+        background: #545b62;
+      }
+
+      button.success {
+        background: #28a745;
+      }
+
+      button.success:hover {
+        background: #218838;
+      }
+
+      button.warning {
+        background: #ffc107;
+        color: #000;
+      }
+
+      button.warning:hover {
+        background: #e0a800;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 15px;
+        margin: 10px 0;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: inherit;
+        transition: border-color 0.2s ease;
+      }
+
+      input:focus,
+      textarea:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .contenteditable {
+        border: 2px solid #ddd;
+        padding: 15px;
+        min-height: 120px;
+        border-radius: 8px;
+        background: white;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .contenteditable:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .test-examples {
+        background: #fff3e0;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .test-examples h4 {
+        margin-top: 0;
+        color: #e65100;
+      }
+
+      .example-text {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-family: 'Courier New', monospace;
+        border-left: 3px solid #007bff;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .example-text:hover {
+        background: #e9ecef;
+      }
+
+      .example-text .label {
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 5px;
+      }
+
+      .keyboard-shortcuts {
+        background: #f3e5f5;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+        border-left: 4px solid #9c27b0;
+      }
+
+      .keyboard-shortcuts h4 {
+        margin-top: 0;
+        color: #7b1fa2;
+      }
+
+      .shortcut {
+        display: inline-block;
+        background: #333;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        margin: 2px;
+      }
+
+      .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        margin: 5px 0;
+      }
+
+      .status-ready {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status-processing {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+
+      .status-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .feature-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .feature-card h4 {
+        margin-top: 0;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .console-output {
+        background: #1e1e1e;
+        color: #ffffff;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+        margin: 10px 0;
+        border: 1px solid #333;
+      }
+
+      @media (max-width: 768px) {
+        .debug-controls {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🔧 Sentence-by-Sentence Debug Test</h1>
+      <p>Visual debugging for smooth grammar correction processing</p>
+    </div>
+
+    <div class="test-section">
+      <h3>🚀 Quick Start</h3>
+      <div class="instructions">
+        <h4>How to Use This Debug Tool:</h4>
+        <ol>
+          <li>
+            <strong>Load Extension:</strong> Ensure IntelliSense extension is
+            loaded in Chrome
+          </li>
+          <li>
+            <strong>Open Debug Panel:</strong> Press
+            <span class="shortcut">Ctrl+Shift+D</span> or click "Show Debug
+            Panel"
+          </li>
+          <li>
+            <strong>Test Processing:</strong> Click any example text below to
+            auto-fill and test
+          </li>
+          <li>
+            <strong>Watch Real-time:</strong> See sentence-by-sentence
+            processing in the debug panel
+          </li>
+          <li>
+            <strong>Monitor Console:</strong> Check browser console for detailed
+            logs
+          </li>
+        </ol>
+      </div>
+
+      <div class="keyboard-shortcuts">
+        <h4>⌨️ Keyboard Shortcuts:</h4>
+        <p>
+          <span class="shortcut">Ctrl+Shift+D</span> Toggle Debug Panel |
+          <span class="shortcut">Ctrl+Shift+C</span> Clear Debug Log |
+          <span class="shortcut">F12</span> Open DevTools Console
+        </p>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>🎛️ Debug Controls</h3>
+      <div class="debug-controls">
+        <div class="control-group">
+          <label>Debug Panel</label>
+          <button onclick="showDebugPanel()" class="success">
+            Show Debug Panel
+          </button>
+          <button onclick="hideDebugPanel()" class="secondary">
+            Hide Debug Panel
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label>Log Management</label>
+          <button onclick="clearDebugLog()" class="warning">
+            Clear Debug Log
+          </button>
+          <button onclick="exportDebugLog()" class="secondary">
+            Export Log
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label>System Status</label>
+          <button onclick="checkSystemStatus()" class="secondary">
+            Check Status
+          </button>
+          <button onclick="refreshStats()" class="secondary">
+            Refresh Stats
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label>Test Examples</label>
+          <button onclick="runAllTests()" class="success">Run All Tests</button>
+          <button onclick="testCustomText()" class="secondary">
+            Test Custom
+          </button>
+        </div>
+      </div>
+
+      <div id="system-status" class="status-indicator status-ready">
+        <span>🟢</span> System Status: Loading...
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>📝 Test Examples - Click to Auto-Test</h3>
+      <div class="test-examples">
+        <h4>🎯 Your Original Example:</h4>
+        <div
+          class="example-text"
+          onclick="testExample(this.querySelector('.text').textContent)"
+        >
+          <div class="label">3 Sentences with Errors:</div>
+          <div class="text">
+            Hello evryone my nema is Alex. I like very much progarming and im
+            very good at web dev. i would like to make new frisnts todya.
+          </div>
+        </div>
+
+        <h4>🧪 Additional Test Cases:</h4>
+        <div
+          class="example-text"
+          onclick="testExample(this.querySelector('.text').textContent)"
+        >
+          <div class="label">Mixed Grammar & Spelling:</div>
+          <div class="text">
+            The quick brown fox jump over the lazy dogs. She have three cats and
+            two dog. They was playing in the garden yesterday.
+          </div>
+        </div>
+
+        <div
+          class="example-text"
+          onclick="testExample(this.querySelector('.text').textContent)"
+        >
+          <div class="label">Incomplete Last Sentence (Rate Limited):</div>
+          <div class="text">
+            This is a complete sentence. This is another complete sentence. This
+            is an incomplete
+          </div>
+        </div>
+
+        <div
+          class="example-text"
+          onclick="testExample(this.querySelector('.text').textContent)"
+        >
+          <div class="label">Single Long Sentence:</div>
+          <div class="text">
+            I am writting a very long sentance with many grammar errors and
+            spelling mistakes that should be corrected by the AI system.
+          </div>
+        </div>
+
+        <div
+          class="example-text"
+          onclick="testExample(this.querySelector('.text').textContent)"
+        >
+          <div class="label">Multiple Short Sentences:</div>
+          <div class="text">
+            I am happy. You is sad. We are frends. They was here. It are
+            working.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>🧪 Interactive Test Areas</h3>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4>📝 Textarea Test</h4>
+          <textarea
+            id="test-textarea"
+            rows="6"
+            placeholder="Type or paste text here to test sentence processing..."
+          ></textarea>
+          <button onclick="testCurrentText('test-textarea')">
+            Test This Text
+          </button>
+        </div>
+
+        <div class="feature-card">
+          <h4>📄 Input Test</h4>
+          <input
+            type="text"
+            id="test-input"
+            placeholder="Type text here for testing..."
+          />
+          <button onclick="testCurrentText('test-input')">
+            Test This Text
+          </button>
+        </div>
+
+        <div class="feature-card">
+          <h4>✏️ Contenteditable Test</h4>
+          <div
+            contenteditable="true"
+            class="contenteditable"
+            id="test-contenteditable"
+          >
+            Click here and type text to test contenteditable processing...
+          </div>
+          <button onclick="testCurrentText('test-contenteditable')">
+            Test This Text
+          </button>
+        </div>
+
+        <div class="feature-card">
+          <h4>📊 Live Stats</h4>
+          <div id="live-stats" class="console-output">Loading stats...</div>
+          <button onclick="refreshStats()">Refresh Stats</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>🔍 Expected Debug Output</h3>
+      <div class="instructions">
+        <h4>What You Should See in the Debug Panel:</h4>
+        <ul>
+          <li>
+            <strong>📝 Current Element:</strong> Shows which input is being
+            processed
+          </li>
+          <li>
+            <strong>📄 Sentence Processing:</strong> Real-time
+            sentence-by-sentence status
+          </li>
+          <li>
+            <strong>📊 Statistics:</strong> Live counts of elements, sentences,
+            corrections
+          </li>
+          <li>
+            <strong>📋 Processing Log:</strong> Detailed timeline of all
+            operations
+          </li>
+        </ul>
+
+        <h4>Sentence Status Colors:</h4>
+        <ul>
+          <li>
+            <strong>🟡 Processing:</strong> Sentence is being corrected by AI
+          </li>
+          <li><strong>🟢 Completed:</strong> Sentence correction finished</li>
+          <li><strong>🔴 Error:</strong> Correction failed</li>
+          <li>
+            <strong>⚪ Skipped:</strong> Rate limited or no changes needed
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h3>📋 Console Commands</h3>
+      <div class="console-output" id="console-commands">
+        // Available console commands: intelliSense.showDebugPanel() // Show
+        debug panel intelliSense.hideDebugPanel() // Hide debug panel
+        intelliSense.testSentenceProcessing(text, element) // Test specific text
+        intelliSense.clearDebugLog() // Clear debug log intelliSense.getStats()
+        // Get system stats // Example usage: await
+        intelliSense.testSentenceProcessing( "Hello evryone my nema is Alex. I
+        like very much progarming.", document.querySelector("#test-textarea") )
+      </div>
+    </div>
+
+    <script>
+      let systemReady = false;
+      let debugPanelVisible = false;
+
+      // Initialize page
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('🧪 Sentence Debug Test page loaded');
+
+        // Check system status after delay
+        setTimeout(() => {
+          checkSystemStatus();
+          refreshStats();
+
+          // Auto-refresh stats every 5 seconds
+          setInterval(refreshStats, 5000);
+        }, 2000);
+      });
+
+      // Debug Panel Controls
+      function showDebugPanel() {
+        if (window.intelliSense && window.intelliSense.showDebugPanel) {
+          window.intelliSense.showDebugPanel();
+          debugPanelVisible = true;
+          updateSystemStatus('Debug panel opened', 'ready');
+        } else {
+          updateSystemStatus('IntelliSense not available', 'error');
+        }
+      }
+
+      function hideDebugPanel() {
+        if (window.intelliSense && window.intelliSense.hideDebugPanel) {
+          window.intelliSense.hideDebugPanel();
+          debugPanelVisible = false;
+          updateSystemStatus('Debug panel closed', 'ready');
+        }
+      }
+
+      function clearDebugLog() {
+        if (window.intelliSense && window.intelliSense.clearDebugLog) {
+          window.intelliSense.clearDebugLog();
+          updateSystemStatus('Debug log cleared', 'ready');
+        }
+      }
+
+      // Test Functions
+      async function testExample(text) {
+        console.log('🧪 Testing example text:', text);
+
+        const textarea = document.getElementById('test-textarea');
+        textarea.value = text;
+        textarea.focus();
+
+        if (window.intelliSense && window.intelliSense.testSentenceProcessing) {
+          updateSystemStatus('Testing sentence processing...', 'processing');
+
+          try {
+            await window.intelliSense.testSentenceProcessing(text, textarea);
+            updateSystemStatus('Test completed successfully', 'ready');
+          } catch (error) {
+            console.error('Test failed:', error);
+            updateSystemStatus('Test failed: ' + error.message, 'error');
+          }
+        } else {
+          updateSystemStatus('IntelliSense not available', 'error');
+        }
+      }
+
+      async function testCurrentText(elementId) {
+        const element = document.getElementById(elementId);
+        let text = '';
+
+        if (element.tagName === 'TEXTAREA' || element.tagName === 'INPUT') {
+          text = element.value;
+        } else if (element.contentEditable === 'true') {
+          text = element.textContent;
+        }
+
+        if (!text.trim()) {
+          updateSystemStatus('No text to test', 'error');
+          return;
+        }
+
+        console.log('🧪 Testing current text from', elementId, ':', text);
+
+        if (window.intelliSense && window.intelliSense.testSentenceProcessing) {
+          updateSystemStatus('Testing current text...', 'processing');
+
+          try {
+            await window.intelliSense.testSentenceProcessing(text, element);
+            updateSystemStatus('Test completed successfully', 'ready');
+          } catch (error) {
+            console.error('Test failed:', error);
+            updateSystemStatus('Test failed: ' + error.message, 'error');
+          }
+        } else {
+          updateSystemStatus('IntelliSense not available', 'error');
+        }
+      }
+
+      async function runAllTests() {
+        const examples = [
+          'Hello evryone my nema is Alex. I like very much progarming and im very good at web dev. i would like to make new frisnts todya.',
+          'The quick brown fox jump over the lazy dogs. She have three cats and two dog.',
+          'I am writting a very long sentance with many grammar errors.',
+        ];
+
+        updateSystemStatus('Running all tests...', 'processing');
+
+        for (let i = 0; i < examples.length; i++) {
+          console.log(`🧪 Running test ${i + 1}/${examples.length}`);
+          await testExample(examples[i]);
+
+          // Wait between tests
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+
+        updateSystemStatus('All tests completed', 'ready');
+      }
+
+      function testCustomText() {
+        const text = prompt('Enter text to test:');
+        if (text) {
+          testExample(text);
+        }
+      }
+
+      // System Status
+      function checkSystemStatus() {
+        const checks = {
+          intelliSense: !!window.intelliSense,
+          textUI: !!window.textUI,
+          textMonitor: !!window.textMonitor,
+          debugPanel: !!window.debugPanel,
+        };
+
+        const allReady = Object.values(checks).every((check) => check);
+        systemReady = allReady;
+
+        if (allReady) {
+          updateSystemStatus('All systems ready', 'ready');
+        } else {
+          const missing = Object.keys(checks).filter((key) => !checks[key]);
+          updateSystemStatus(`Missing: ${missing.join(', ')}`, 'error');
+        }
+
+        console.log('🔍 System Status:', checks);
+        return checks;
+      }
+
+      function updateSystemStatus(message, type) {
+        const statusEl = document.getElementById('system-status');
+        const icons = {
+          ready: '🟢',
+          processing: '🟡',
+          error: '🔴',
+        };
+
+        statusEl.className = `status-indicator status-${type}`;
+        statusEl.innerHTML = `<span>${icons[type]}</span> System Status: ${message}`;
+      }
+
+      function refreshStats() {
+        if (window.intelliSense && window.intelliSense.getStats) {
+          const stats = window.intelliSense.getStats();
+
+          const statsDisplay = document.getElementById('live-stats');
+          statsDisplay.innerHTML = `
+Monitor: ${stats.monitor?.activeElements || 0} elements
+UI: ${stats.ui?.activeElements || 0} active
+Debug: ${stats.debug?.logEntries || 0} log entries
+Cache: ${stats.ui?.sentenceCache || 0} cached sentences
+
+Last Updated: ${new Date().toLocaleTimeString()}
+                `.trim();
+
+          console.log('📊 Live Stats:', stats);
+        }
+      }
+
+      function exportDebugLog() {
+        if (window.debugPanel && window.debugPanel.processingLog) {
+          const log = window.debugPanel.processingLog;
+          const logText = log
+            .map(
+              (entry) =>
+                `[${new Date(
+                  entry.timestamp
+                ).toLocaleTimeString()}] ${entry.type.toUpperCase()}: ${
+                  entry.message
+                }`
+            )
+            .join('\n');
+
+          const blob = new Blob([logText], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `intellisense-debug-${Date.now()}.log`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          updateSystemStatus('Debug log exported', 'ready');
+        } else {
+          updateSystemStatus('No debug log available', 'error');
+        }
+      }
+
+      // Add event listeners for real-time testing
+      document.addEventListener('input', (event) => {
+        if (
+          event.target.matches(
+            '#test-textarea, #test-input, #test-contenteditable'
+          )
+        ) {
+          console.log('📝 Input detected on test element:', event.target.id);
+        }
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.shiftKey) {
+          switch (event.key) {
+            case 'D':
+              event.preventDefault();
+              if (debugPanelVisible) {
+                hideDebugPanel();
+              } else {
+                showDebugPanel();
+              }
+              break;
+            case 'C':
+              event.preventDefault();
+              clearDebugLog();
+              break;
+            case 'T':
+              event.preventDefault();
+              runAllTests();
+              break;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

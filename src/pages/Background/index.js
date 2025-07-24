@@ -50,6 +50,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleGetUserLanguage(sendResponse);
       break;
 
+    case 'REQUEST_SENTENCE_CONTINUATION':
+      handleSentenceContinuationRequest(message.data, sender, sendResponse);
+      break;
+
     default:
       console.warn('Unknown message type:', message.type);
       sendResponse({ success: false, error: 'Unknown message type' });
@@ -270,6 +274,38 @@ async function handleGetUserLanguage(sendResponse) {
     });
   } catch (error) {
     console.error('❌ Failed to get user language:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle sentence continuation request (THINKING MODE)
+ */
+async function handleSentenceContinuationRequest(
+  requestData,
+  sender,
+  sendResponse
+) {
+  try {
+    console.log(
+      '🧠 Sentence continuation requested for:',
+      requestData.completedText.substring(0, 50) + '...'
+    );
+
+    const result = await groqAPI.getSentenceContinuations(
+      requestData.completedText,
+      requestData.context || ''
+    );
+
+    sendResponse({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('❌ Sentence continuation failed:', error);
     sendResponse({
       success: false,
       error: error.message,

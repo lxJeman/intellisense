@@ -6,8 +6,11 @@
 class TextMonitor {
   constructor() {
     this.debounceDelay = 500; // 500ms pause detection
+    this.thinkingModeDelay = 1500; // 1.5s delay for thinking mode after sentence completion
     this.debounceTimers = new Map(); // Store timers per element
+    this.thinkingTimers = new Map(); // Store thinking mode timers per element
     this.activeElements = new Set(); // Track monitored elements
+    this.lastTextStates = new Map(); // Track last text state per element
     this.init();
   }
 
@@ -145,19 +148,108 @@ class TextMonitor {
    */
   handleInput(event, elementId) {
     const element = event.target;
+    const currentText = this.getTextContent(element);
 
-    // Clear existing timer for this element
+    // Clear existing timers for this element
     if (this.debounceTimers.has(element)) {
       clearTimeout(this.debounceTimers.get(element));
     }
+    if (this.thinkingTimers.has(element)) {
+      clearTimeout(this.thinkingTimers.get(element));
+    }
 
-    // Set new timer
+    // Check for thinking mode (sentence completion)
+    this.checkThinkingMode(element, elementId, currentText);
+
+    // Set new debounce timer
     const timer = setTimeout(() => {
       this.processInput(element, elementId);
       this.debounceTimers.delete(element);
     }, this.debounceDelay);
 
     this.debounceTimers.set(element, timer);
+  }
+
+  /**
+   * Check if user is in thinking mode after completing a sentence
+   */
+  checkThinkingMode(element, elementId, currentText) {
+    const lastText = this.lastTextStates.get(element) || '';
+    this.lastTextStates.set(element, currentText);
+
+    // Check if text ends with sentence-ending punctuation
+    const trimmedText = currentText.trim();
+    const endsWithPunctuation = /[.!?]\s*$/.test(trimmedText);
+
+    // Check if user just added punctuation (text grew and now ends with punctuation)
+    const justCompletedSentence =
+      endsWithPunctuation &&
+      trimmedText.length > lastText.trim().length &&
+      trimmedText.length > 10; // Minimum sentence length
+
+    if (justCompletedSentence) {
+      console.log(
+        '🧠 Sentence completed, starting thinking mode timer:',
+        trimmedText.substring(-50)
+      );
+
+      // Set thinking mode timer
+      const thinkingTimer = setTimeout(() => {
+        this.triggerThinkingMode(element, elementId, trimmedText);
+        this.thinkingTimers.delete(element);
+      }, this.thinkingModeDelay);
+
+      this.thinkingTimers.set(element, thinkingTimer);
+    }
+  }
+
+  /**
+   * Trigger thinking mode - request sentence continuations
+   */
+  triggerThinkingMode(element, elementId, completedText) {
+    console.log('🧠 Thinking mode activated for:', elementId);
+
+    // Get surrounding context (previous sentences)
+    const sentences = completedText
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 0);
+    const context =
+      sentences.length > 1 ? sentences.slice(-3, -1).join('. ') : '';
+
+    const continuationData = {
+      elementId,
+      completedText,
+      context,
+      timestamp: Date.now(),
+      elementType: element.tagName.toLowerCase(),
+    };
+
+    // Send continuation request to background script
+    try {
+      chrome.runtime.sendMessage(
+        {
+          type: 'REQUEST_SENTENCE_CONTINUATION',
+          data: continuationData,
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.warn(
+              'Background script communication error:',
+              chrome.runtime.lastError
+            );
+          } else if (response?.success) {
+            console.log('✅ Continuation request sent successfully');
+
+            // Notify UI system if available
+            if (this.uiHandler) {
+              this.uiHandler.handleContinuationResult(element, response.data);
+            }
+          }
+        }
+      );
+    } catch (error) {
+      console.warn('Failed to send continuation request:', error);
+    }
   }
 
   /**

@@ -467,13 +467,237 @@ class TextUI {
   }
 
   /**
+   * Handle continuation results from thinking mode
+   */
+  handleContinuationResult(element, continuationData) {
+    if (
+      !continuationData ||
+      !continuationData.continuations ||
+      continuationData.continuations.length === 0
+    ) {
+      console.log('🧠 No continuations received');
+      return;
+    }
+
+    console.log(
+      '🧠 Displaying continuation dropdown with',
+      continuationData.continuations.length,
+      'options'
+    );
+    this.displayContinuationDropdown(element, continuationData.continuations);
+  }
+
+  /**
+   * Display continuation dropdown with 3 options
+   */
+  displayContinuationDropdown(element, continuations) {
+    const elementId = this.getElementId(element);
+
+    // Remove any existing continuation dropdown
+    this.removeContinuationDropdown(elementId);
+
+    // Create dropdown container
+    const dropdown = document.createElement('div');
+    dropdown.className = 'intellisense-continuation-dropdown';
+    dropdown.id = `continuation-dropdown-${elementId}`;
+
+    // Position dropdown near the input
+    const rect = element.getBoundingClientRect();
+    dropdown.style.position = 'absolute';
+    dropdown.style.left = rect.left + 'px';
+    dropdown.style.top = rect.bottom + 8 + 'px';
+    dropdown.style.zIndex = '10000';
+    dropdown.style.background = 'white';
+    dropdown.style.border = '2px solid #007bff';
+    dropdown.style.borderRadius = '8px';
+    dropdown.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+    dropdown.style.maxWidth = '400px';
+    dropdown.style.minWidth = '250px';
+    dropdown.style.fontFamily =
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    dropdown.style.fontSize = '14px';
+
+    // Create header
+    const header = document.createElement('div');
+    header.style.padding = '12px 16px 8px';
+    header.style.borderBottom = '1px solid #dee2e6';
+    header.style.fontWeight = '600';
+    header.style.color = '#495057';
+    header.textContent = '🧠 Continue your thought:';
+    dropdown.appendChild(header);
+
+    // Create options
+    continuations.forEach((continuation, index) => {
+      const option = document.createElement('div');
+      option.className = 'intellisense-continuation-option';
+      option.style.padding = '12px 16px';
+      option.style.cursor = 'pointer';
+      option.style.borderBottom =
+        index < continuations.length - 1 ? '1px solid #f8f9fa' : 'none';
+      option.style.transition = 'background-color 0.2s';
+
+      // Add hover effect
+      option.addEventListener('mouseenter', () => {
+        option.style.backgroundColor = '#f8f9fa';
+      });
+      option.addEventListener('mouseleave', () => {
+        option.style.backgroundColor = 'transparent';
+      });
+
+      // Create option content
+      const optionNumber = document.createElement('span');
+      optionNumber.style.fontWeight = '600';
+      optionNumber.style.color = '#007bff';
+      optionNumber.style.marginRight = '8px';
+      optionNumber.textContent = `${index + 1}.`;
+
+      const optionText = document.createElement('span');
+      optionText.style.color = '#495057';
+      optionText.style.lineHeight = '1.4';
+      optionText.textContent = continuation;
+
+      option.appendChild(optionNumber);
+      option.appendChild(optionText);
+
+      // Click handler to apply continuation
+      option.addEventListener('click', () => {
+        this.applyContinuation(element, continuation);
+        this.removeContinuationDropdown(elementId);
+      });
+
+      dropdown.appendChild(option);
+    });
+
+    // Create dismiss button
+    const dismissButton = document.createElement('div');
+    dismissButton.style.padding = '8px 16px';
+    dismissButton.style.textAlign = 'center';
+    dismissButton.style.borderTop = '1px solid #dee2e6';
+    dismissButton.style.cursor = 'pointer';
+    dismissButton.style.color = '#6c757d';
+    dismissButton.style.fontSize = '12px';
+    dismissButton.textContent = 'Dismiss (Esc)';
+
+    dismissButton.addEventListener('mouseenter', () => {
+      dismissButton.style.backgroundColor = '#f8f9fa';
+    });
+    dismissButton.addEventListener('mouseleave', () => {
+      dismissButton.style.backgroundColor = 'transparent';
+    });
+
+    dismissButton.addEventListener('click', () => {
+      this.removeContinuationDropdown(elementId);
+    });
+
+    dropdown.appendChild(dismissButton);
+
+    // Add to document
+    document.body.appendChild(dropdown);
+
+    // Auto-remove after 20 seconds
+    setTimeout(() => this.removeContinuationDropdown(elementId), 20000);
+
+    // Add keyboard navigation
+    this.setupContinuationKeyboardNavigation(dropdown, elementId);
+
+    console.log(
+      '✅ Continuation dropdown displayed with',
+      continuations.length,
+      'options'
+    );
+  }
+
+  /**
+   * Apply selected continuation
+   */
+  applyContinuation(element, continuation) {
+    const currentText = this.getElementText(element);
+    const newText = currentText + ' ' + continuation;
+
+    const success = this.textReplacer.replaceText(element, newText, {
+      preserveSelection: false,
+      addToUndo: true,
+      animateChange: true,
+    });
+
+    if (success) {
+      this.showNotification('✅ Continuation applied!');
+      console.log('✅ Continuation applied:', continuation);
+    }
+  }
+
+  /**
+   * Remove continuation dropdown
+   */
+  removeContinuationDropdown(elementId) {
+    const dropdown = document.getElementById(
+      `continuation-dropdown-${elementId}`
+    );
+    if (dropdown) {
+      dropdown.remove();
+      console.log('🗑️ Continuation dropdown removed');
+    }
+  }
+
+  /**
+   * Setup keyboard navigation for continuation dropdown
+   */
+  setupContinuationKeyboardNavigation(dropdown, elementId) {
+    let selectedIndex = 0;
+    const options = dropdown.querySelectorAll(
+      '.intellisense-continuation-option'
+    );
+
+    // Highlight first option
+    if (options.length > 0) {
+      options[0].style.backgroundColor = '#e3f2fd';
+    }
+
+    const keyHandler = (event) => {
+      if (!document.body.contains(dropdown)) {
+        document.removeEventListener('keydown', keyHandler);
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          options[selectedIndex].style.backgroundColor = 'transparent';
+          selectedIndex = (selectedIndex + 1) % options.length;
+          options[selectedIndex].style.backgroundColor = '#e3f2fd';
+          break;
+
+        case 'ArrowUp':
+          event.preventDefault();
+          options[selectedIndex].style.backgroundColor = 'transparent';
+          selectedIndex =
+            selectedIndex === 0 ? options.length - 1 : selectedIndex - 1;
+          options[selectedIndex].style.backgroundColor = '#e3f2fd';
+          break;
+
+        case 'Enter':
+          event.preventDefault();
+          options[selectedIndex].click();
+          break;
+
+        case 'Escape':
+          event.preventDefault();
+          this.removeContinuationDropdown(elementId);
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', keyHandler);
+  }
+
+  /**
    * Hash text for duplicate detection
    */
   hashText(text) {
     let hash = 0;
     for (let i = 0; i < text.length; i++) {
       const char = text.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return hash.toString();

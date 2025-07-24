@@ -298,13 +298,20 @@ Target Language: ${this.userLanguage}`,
           {
             role: 'system',
             content: `You are an intelligent autocomplete assistant. Your task is to:
-1. Provide ONLY ONE best completion for the given text
-2. Keep the completion concise and contextually appropriate (max 10-15 words)
-3. Return ONLY the completion text, no JSON, no quotes, no explanations
-4. Complete the current sentence or thought naturally
+1. Provide EXACTLY 3 different completions for the given text
+2. Each completion should be concise and contextually appropriate (max 10-15 words)
+3. Format each completion with HTML tags for easy parsing: <option1>completion text</option1>
+4. Complete the current sentence or thought naturally with variety
 5. Maintain the same writing style and tone
-6. Provide completion in ${this.userLanguage}
+6. Provide completions in ${this.userLanguage}
 7. If input is in different language, translate to ${this.userLanguage}
+8. Make each completion unique and offer different directions/styles
+9. Return ONLY the 3 tagged completions, no explanations
+
+Format example:
+<option1>first completion here</option1>
+<option2>second completion here</option2>
+<option3>third completion here</option3>
 
 Target Language: ${this.userLanguage}`,
           },
@@ -312,24 +319,50 @@ Target Language: ${this.userLanguage}`,
             role: 'user',
             content: `Context: ${context}
 Current text: ${text}
-Provide completion in ${this.userLanguage}:`,
+Provide 3 completions in ${this.userLanguage}:`,
           },
         ],
-        max_tokens: 200,
-        temperature: 0.3,
+        max_tokens: 300,
+        temperature: 0.5,
       });
 
       const responseText =
         completion.choices[0]?.message?.content?.trim() || '';
 
-      // Clean up the response
-      let suggestion = responseText
-        .replace(/^["'[\]{}]/g, '')
-        .replace(/["'[\]{}]$/g, '')
-        .replace(/^(Here is|The completion is|Suggestion:)\s*/i, '')
-        .trim();
+      // Parse the HTML-tagged responses
+      const suggestions = [];
+      const optionRegex = /<option(\d+)>(.*?)<\/option\1>/g;
+      let match;
 
-      if (!suggestion || suggestion.length > 100) {
+      while ((match = optionRegex.exec(responseText)) !== null) {
+        const suggestion = match[2].trim();
+        if (suggestion && suggestion.length <= 100) {
+          suggestions.push(suggestion);
+        }
+      }
+
+      // Fallback parsing if HTML tags are not properly formatted
+      if (suggestions.length === 0) {
+        const lines = responseText.split('\n').filter((line) => line.trim());
+        for (let i = 0; i < Math.min(3, lines.length); i++) {
+          let suggestion = lines[i]
+            .replace(/^["'[\]{}]/g, '')
+            .replace(/["'[\]{}]$/g, '')
+            .replace(
+              /^(Here is|The completion is|Suggestion:|Option \d+:|\d+\.)\s*/i,
+              ''
+            )
+            .replace(/<\/?option\d*>/g, '')
+            .trim();
+
+          if (suggestion && suggestion.length <= 100) {
+            suggestions.push(suggestion);
+          }
+        }
+      }
+
+      // Ensure we have at least one suggestion
+      if (suggestions.length === 0) {
         return {
           suggestions: [],
           original: text,
@@ -341,7 +374,7 @@ Provide completion in ${this.userLanguage}:`,
       }
 
       const result = {
-        suggestions: [suggestion],
+        suggestions: suggestions.slice(0, 3), // Ensure max 3 suggestions
         original: text,
         context,
         targetLanguage: this.userLanguage,
@@ -352,12 +385,145 @@ Provide completion in ${this.userLanguage}:`,
       this.setCachedResponse(cacheKey, result);
       console.log(
         `✅ Autocomplete generated in ${this.userLanguage}:`,
-        result.suggestions.length
+        result.suggestions.length,
+        'options'
       );
 
       return result;
     } catch (error) {
       console.error('❌ Autocomplete generation failed:', error);
+      throw error;
+    }
+  }
+
+  // ========================================
+  // SENTENCE CONTINUATION
+  // ========================================
+
+  /**
+   * Generate sentence continuations after user completes a sentence
+   */
+  async getSentenceContinuations(completedText, context = '') {
+    if (!this.isInitialized) {
+      throw new Error('Groq API not initialized');
+    }
+
+    if (!completedText || completedText.trim().length < 5) {
+      return { continuations: [] };
+    }
+
+    const cacheKey = this.getCacheKey(completedText + context, 'continuation');
+    const cached = this.getCachedResponse(cacheKey);
+    if (cached) return cached;
+
+    try {
+      console.log(
+        `🧠 Generating continuations for: "${completedText.substring(
+          0,
+          50
+        )}..." → ${this.userLanguage}`
+      );
+
+      const completion = await this.groq.chat.completions.create({
+        model: 'llama3-8b-8192',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an intelligent writing assistant that helps users continue their thoughts. Your task is to:
+1. Provide EXACTLY 3 different sentence continuations based on the completed text
+2. Each continuation should be a complete sentence (15-25 words ideal)
+3. Format each continuation with HTML tags: <continuation1>sentence here</continuation1>
+4. Make continuations logical, coherent, and contextually appropriate
+5. Offer different directions: elaboration, contrast, example, or next logical step
+6. Maintain the same writing style, tone, and formality level
+7. Write continuations in ${this.userLanguage}
+8. If input is in different language, provide continuations in ${this.userLanguage}
+9. Return ONLY the 3 tagged continuations, no explanations
+
+Format example:
+<continuation1>This elaborates on the previous point with more detail.</continuation1>
+<continuation2>However, there's another perspective to consider here.</continuation2>
+<continuation3>For example, we could implement this approach instead.</continuation3>
+
+Target Language: ${this.userLanguage}`,
+          },
+          {
+            role: 'user',
+            content: `Context: ${context}
+Completed text: ${completedText}
+Provide 3 sentence continuations in ${this.userLanguage}:`,
+          },
+        ],
+        max_tokens: 400,
+        temperature: 0.6,
+      });
+
+      const responseText =
+        completion.choices[0]?.message?.content?.trim() || '';
+
+      // Parse the HTML-tagged responses
+      const continuations = [];
+      const continuationRegex = /<continuation(\d+)>(.*?)<\/continuation\1>/g;
+      let match;
+
+      while ((match = continuationRegex.exec(responseText)) !== null) {
+        const continuation = match[2].trim();
+        if (continuation && continuation.length <= 200) {
+          continuations.push(continuation);
+        }
+      }
+
+      // Fallback parsing if HTML tags are not properly formatted
+      if (continuations.length === 0) {
+        const lines = responseText.split('\n').filter((line) => line.trim());
+        for (let i = 0; i < Math.min(3, lines.length); i++) {
+          let continuation = lines[i]
+            .replace(/^["'[\]{}]/g, '')
+            .replace(/["'[\]{}]$/g, '')
+            .replace(
+              /^(Here is|The continuation is|Continuation:|Option \d+:|\d+\.)\s*/i,
+              ''
+            )
+            .replace(/<\/?continuation\d*>/g, '')
+            .trim();
+
+          if (continuation && continuation.length <= 200) {
+            continuations.push(continuation);
+          }
+        }
+      }
+
+      // Ensure we have at least one continuation
+      if (continuations.length === 0) {
+        return {
+          continuations: [],
+          original: completedText,
+          context,
+          targetLanguage: this.userLanguage,
+          model: 'llama3-8b-8192',
+          timestamp: Date.now(),
+        };
+      }
+
+      const result = {
+        continuations: continuations.slice(0, 3), // Ensure max 3 continuations
+        original: completedText,
+        context,
+        targetLanguage: this.userLanguage,
+        model: 'llama3-8b-8192',
+        timestamp: Date.now(),
+      };
+
+      this.setCachedResponse(cacheKey, result);
+      console.log(
+        `✅ Continuations generated in ${this.userLanguage}:`,
+        result.continuations.length,
+        'options'
+      );
+
+      return result;
+    } catch (error) {
+      console.error('❌ Sentence continuation generation failed:', error);
       throw error;
     }
   }
