@@ -2,53 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './Popup.css';
 
 const Popup = () => {
-  const [settings, setSettings] = useState({
-    grammarCorrection: true,
-    sentenceCompletion: true,
-    continuation: true,
-    shortAIAnswer: false, // NEW: Short AI Answer feature
-    multilingual: true,
-    debounceDelay: 3000,
-  });
   const [stats, setStats] = useState(null);
-  const [testText, setTestText] = useState('What is the best programmer or dev blog writer?');
-  const [aiAnswer, setAiAnswer] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [availableLanguages, setAvailableLanguages] = useState([]);
 
-  // Load settings and stats on component mount
   useEffect(() => {
-    loadSettings();
     loadAPIStats();
+    loadUserLanguage();
+    loadAvailableLanguages();
   }, []);
-
-  const loadSettings = async () => {
-    try {
-      const result = await chrome.storage.sync.get('intellisenseSettings');
-      if (result.intellisenseSettings) {
-        setSettings({ ...settings, ...result.intellisenseSettings });
-      }
-    } catch (error) {
-      console.error('Failed to load settings:', error);
-    }
-  };
-
-  const saveSettings = async (newSettings) => {
-    try {
-      await chrome.storage.sync.set({ intellisenseSettings: newSettings });
-      setSettings(newSettings);
-      
-      // Send settings to content script
-      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: 'UPDATE_SETTINGS',
-          data: newSettings
-        });
-      }
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-    }
-  };
 
   const loadAPIStats = async () => {
     try {
@@ -64,212 +26,144 @@ const Popup = () => {
     }
   };
 
-  const handleSettingChange = (key, value) => {
-    const newSettings = { ...settings, [key]: value };
-    saveSettings(newSettings);
-  };
-
-  const getShortAIAnswer = async () => {
-    if (!testText.trim()) return;
-    
-    setLoading(true);
-    setAiAnswer('');
-
+  const loadAvailableLanguages = async () => {
     try {
       const response = await chrome.runtime.sendMessage({
-        type: 'REQUEST_SHORT_AI_ANSWER',
-        data: {
-          text: testText,
-          elementId: 'popup-test'
-        }
-      });
-
-      if (response.success) {
-        setAiAnswer(response.data.answer);
-      } else {
-        setAiAnswer('Error: ' + response.error);
-      }
-    } catch (error) {
-      setAiAnswer('Error: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const clearCache = async () => {
-    try {
-      const response = await chrome.runtime.sendMessage({
-        type: 'CLEAR_CACHE'
+        type: 'GET_AVAILABLE_LANGUAGES'
       });
       
       if (response.success) {
-        loadAPIStats();
+        setAvailableLanguages(response.data);
       }
     } catch (error) {
-      console.error('Failed to clear cache:', error);
+      console.error('Failed to load available languages:', error);
     }
+  };
+
+  const loadUserLanguage = async () => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'GET_USER_LANGUAGE'
+      });
+      
+      if (response.success) {
+        setSelectedLanguage(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to load user language:', error);
+    }
+  };
+
+  const handleLanguageChange = async (languageCode) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'SET_USER_LANGUAGE',
+        data: languageCode
+      });
+      
+      if (response.success) {
+        setSelectedLanguage(languageCode);
+      }
+    } catch (error) {
+      console.error('Failed to update language:', error);
+    }
+  };
+
+  const openFullSettings = () => {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('settings.html')
+    });
+    window.close();
+  };
+
+  const getCurrentLanguageInfo = () => {
+    const lang = availableLanguages.find(l => l.code === selectedLanguage);
+    return lang || { flag: '🌐', name: 'Unknown' };
   };
 
   return (
     <div className="settings-container">
-      <div className="settings-header">
-        <h2>⚙️ IntelliSense Settings</h2>
-        <p>Configure your AI writing assistant</p>
+      <div style={{ marginBottom: '30px' }}>
+        <h1 style={{ fontSize: '2rem', margin: '0 0 10px 0' }}>⚙️ IntelliSense</h1>
+        <p style={{ opacity: 0.9, fontSize: '1rem' }}>AI Writing Assistant</p>
       </div>
 
-      <div className="settings-section">
-        <h3>🔧 Core Features</h3>
-        
-        <div className="setting-item">
-          <div className="setting-info">
-            <label>✅ Automatic Grammar Correction</label>
-            <p>Automatically fix grammar errors as you type</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.grammarCorrection}
-            onChange={(e) => handleSettingChange('grammarCorrection', e.target.checked)}
-          />
+      <div style={{ marginBottom: '30px' }}>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.2)', 
+          borderRadius: '12px', 
+          padding: '20px',
+          marginBottom: '20px'
+        }}>
+          <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>🌐 Current Language</h3>
+          <select
+            value={selectedLanguage}
+            onChange={(e) => handleLanguageChange(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '1rem',
+              background: 'white',
+              color: '#333'
+            }}
+          >
+            {availableLanguages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.flag} {lang.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="setting-item">
-          <div className="setting-info">
-            <label>📝 Sentence Completion</label>
-            <p>Suggest completions for finished sentences</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.sentenceCompletion}
-            onChange={(e) => handleSettingChange('sentenceCompletion', e.target.checked)}
-          />
-        </div>
-
-        <div className="setting-item">
-          <div className="setting-info">
-            <label>🔄 Continuation Suggestions</label>
-            <p>Suggest next thoughts when you pause typing</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.continuation}
-            onChange={(e) => handleSettingChange('continuation', e.target.checked)}
-          />
-        </div>
-
-        <div className="setting-item">
-          <div className="setting-info">
-            <label>🌍 Multilingual Support</label>
-            <p>Preserve original language in corrections</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.multilingual}
-            onChange={(e) => handleSettingChange('multilingual', e.target.checked)}
-          />
-        </div>
-      </div>
-
-      <div className="settings-section">
-        <h3>🤖 NEW: Short AI Answer</h3>
-        
-        <div className="setting-item">
-          <div className="setting-info">
-            <label>💬 Enable Short AI Answers</label>
-            <p>Get instant answers to questions (like ChatGPT responses)</p>
-          </div>
-          <input
-            type="checkbox"
-            checked={settings.shortAIAnswer}
-            onChange={(e) => handleSettingChange('shortAIAnswer', e.target.checked)}
-          />
-        </div>
-
-        {settings.shortAIAnswer && (
-          <div className="ai-answer-test">
-            <h4>🧪 Test Short AI Answer</h4>
-            <textarea
-              value={testText}
-              onChange={(e) => setTestText(e.target.value)}
-              placeholder="Ask a question to get a short AI answer..."
-              rows={3}
-            />
-            
-            <button 
-              onClick={getShortAIAnswer} 
-              disabled={loading || !testText.trim()}
-              className="ai-answer-btn"
-            >
-              {loading ? '⏳ Thinking...' : '🤖 Get AI Answer'}
-            </button>
-
-            {aiAnswer && (
-              <div className="ai-answer-result">
-                <h5>🎯 AI Answer:</h5>
-                <div className="ai-answer-text">{aiAnswer}</div>
-              </div>
-            )}
+        {stats && (
+          <div style={{ 
+            background: 'rgba(255,255,255,0.2)', 
+            borderRadius: '12px', 
+            padding: '20px',
+            marginBottom: '20px'
+          }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>📊 Status</h3>
+            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
+              API: {stats.groqAPI?.initialized ? '✅ Ready' : '❌ Error'}<br/>
+              Cache: {stats.groqAPI?.cacheSize || 0} items<br/>
+              Language: {getCurrentLanguageInfo().flag} {getCurrentLanguageInfo().name}
+            </div>
           </div>
         )}
       </div>
 
-      <div className="settings-section">
-        <h3>⚡ Performance</h3>
-        
-        <div className="setting-item">
-          <div className="setting-info">
-            <label>⏱️ Processing Delay</label>
-            <p>Time to wait before processing (milliseconds)</p>
-          </div>
-          <select
-            value={settings.debounceDelay}
-            onChange={(e) => handleSettingChange('debounceDelay', parseInt(e.target.value))}
-          >
-            <option value={1000}>1 second (Fast)</option>
-            <option value={2000}>2 seconds (Balanced)</option>
-            <option value={3000}>3 seconds (Conservative)</option>
-            <option value={5000}>5 seconds (Slow)</option>
-          </select>
-        </div>
-      </div>
+      <button
+        onClick={openFullSettings}
+        style={{
+          width: '100%',
+          padding: '15px 20px',
+          background: 'rgba(255,255,255,0.9)',
+          color: '#333',
+          border: 'none',
+          borderRadius: '12px',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          marginBottom: '20px'
+        }}
+        onMouseOver={(e) => {
+          e.target.style.background = 'white';
+          e.target.style.transform = 'translateY(-2px)';
+        }}
+        onMouseOut={(e) => {
+          e.target.style.background = 'rgba(255,255,255,0.9)';
+          e.target.style.transform = 'translateY(0)';
+        }}
+      >
+        🔧 Open Full Settings
+      </button>
 
-      {stats && (
-        <div className="settings-section">
-          <h3>📊 System Status</h3>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span>API Status:</span>
-              <span className={stats.groqAPI.initialized ? 'status-good' : 'status-bad'}>
-                {stats.groqAPI.initialized ? '✅ Ready' : '❌ Error'}
-              </span>
-            </div>
-            <div className="stat-item">
-              <span>Cache Size:</span>
-              <span>{stats.groqAPI.cacheSize} items</span>
-            </div>
-            <div className="stat-item">
-              <span>Active Requests:</span>
-              <span>{stats.requestManager.activeRequests}</span>
-            </div>
-            <div className="stat-item">
-              <span>Language Support:</span>
-              <span>✅ 12+ Languages</span>
-            </div>
-          </div>
-          
-          <div className="system-actions">
-            <button onClick={clearCache} className="clear-btn">
-              🗑️ Clear Cache
-            </button>
-            <button onClick={loadAPIStats} className="refresh-btn">
-              🔄 Refresh Stats
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="settings-footer">
-        <p>💡 Changes are saved automatically</p>
-        <p>🔄 Refresh the page to apply new settings</p>
+      <div style={{ fontSize: '0.85rem', textAlign: 'center', color: '#333', background: 'rgba(255,255,255,0.9)', borderRadius: '8px', padding: '10px' }}>
+        <p style={{ margin: '5px 0', color: '#333' }}>💡 Quick language change above</p>
+        <p style={{ margin: '5px 0', color: '#333' }}>⚙️ Full settings in new tab</p>
       </div>
     </div>
   );

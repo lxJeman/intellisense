@@ -1,11 +1,16 @@
 .settings-container {
-  width: 450px;
-  min-height: 600px;
+  width: 350px;
+  height: 400px;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f8f9fa;
-  max-height: 700px;
-  overflow-y: auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .settings-header {
@@ -75,7 +80,7 @@
   line-height: 1.4;
 }
 
-.setting-item input[type="checkbox"] {
+.setting-item input[type='checkbox'] {
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -207,7 +212,8 @@
   gap: 8px;
 }
 
-.clear-btn, .refresh-btn {
+.clear-btn,
+.refresh-btn {
   flex: 1;
   padding: 8px 12px;
   border: none;

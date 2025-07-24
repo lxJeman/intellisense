@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IntelliSense Settings</title>
+  </head>
+  <body>
+    <div class="settings-page">
+      <div class="settings-header">
+        <h1>⚙️ IntelliSense Settings</h1>
+        <p>Configure your AI writing assistant</p>
+      </div>
+
+      <div class="settings-content">
+        <!-- Core Features Section -->
+        <div class="settings-section">
+          <h2>🔧 Core Features</h2>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>✅ Automatic Grammar Correction</label>
+              <p>Automatically fix grammar errors as you type</p>
+            </div>
+            <input type="checkbox" id="grammarCorrection" checked />
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>📝 Sentence Completion</label>
+              <p>Suggest completions for finished sentences</p>
+            </div>
+            <input type="checkbox" id="sentenceCompletion" checked />
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>🔄 Continuation Suggestions</label>
+              <p>Suggest next thoughts when you pause typing</p>
+            </div>
+            <input type="checkbox" id="continuation" checked />
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>🌍 Multilingual Support</label>
+              <p>Preserve original language in corrections</p>
+            </div>
+            <input type="checkbox" id="multilingual" checked />
+          </div>
+        </div>
+
+        <!-- Translation Language Section -->
+        <div class="settings-section">
+          <h2>🌐 Translation Language</h2>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>🎯 Target Language</label>
+              <p>Select the language for grammar correction and translation</p>
+            </div>
+            <select id="languageSelect" class="language-select">
+              <option value="en">🇺🇸 English</option>
+            </select>
+          </div>
+
+          <div class="language-info">
+            <p>
+              ✨ All text will be corrected and translated to your selected
+              language
+            </p>
+            <p>🔄 Changes apply immediately to new corrections</p>
+          </div>
+        </div>
+
+        <!-- Short AI Answer Section -->
+        <div class="settings-section">
+          <h2>🤖 Short AI Answer</h2>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>💬 Enable Short AI Answers</label>
+              <p>Get instant answers to questions (like ChatGPT responses)</p>
+            </div>
+            <input type="checkbox" id="shortAIAnswer" />
+          </div>
+
+          <div id="aiAnswerTest" class="ai-answer-test" style="display: none">
+            <h3>🧪 Test Short AI Answer</h3>
+            <textarea
+              id="testText"
+              placeholder="Ask a question to get a short AI answer..."
+              rows="4"
+            >
+What is the best programmer or dev blog writer?</textarea
+            >
+
+            <button id="getAIAnswerBtn" class="ai-answer-btn">
+              🤖 Get AI Answer
+            </button>
+
+            <div
+              id="aiAnswerResult"
+              class="ai-answer-result"
+              style="display: none"
+            >
+              <h4>🎯 AI Answer:</h4>
+              <div id="aiAnswerText" class="ai-answer-text"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Section -->
+        <div class="settings-section">
+          <h2>⚡ Performance</h2>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>⏱️ Processing Delay</label>
+              <p>Time to wait before processing (milliseconds)</p>
+            </div>
+            <select id="debounceDelay">
+              <option value="1000">1 second (Fast)</option>
+              <option value="2000">2 seconds (Balanced)</option>
+              <option value="3000" selected>3 seconds (Conservative)</option>
+              <option value="5000">5 seconds (Slow)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- System Status Section -->
+        <div class="settings-section">
+          <h2>📊 System Status</h2>
+          <div class="stats-grid" id="statsGrid">
+            <div class="stat-item">
+              <span>API Status:</span>
+              <span id="apiStatus" class="status-good">⏳ Loading...</span>
+            </div>
+            <div class="stat-item">
+              <span>Cache Size:</span>
+              <span id="cacheSize">0 items</span>
+            </div>
+            <div class="stat-item">
+              <span>Active Requests:</span>
+              <span id="activeRequests">0</span>
+            </div>
+            <div class="stat-item">
+              <span>Language Support:</span>
+              <span>✅ 70+ Languages</span>
+            </div>
+          </div>
+
+          <div class="system-actions">
+            <button id="clearCacheBtn" class="clear-btn">🗑️ Clear Cache</button>
+            <button id="refreshStatsBtn" class="refresh-btn">
+              🔄 Refresh Stats
+            </button>
+          </div>
+        </div>
+
+        <!-- Advanced Settings Section -->
+        <div class="settings-section">
+          <h2>🔬 Advanced Settings</h2>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>🎛️ Debug Mode</label>
+              <p>Enable detailed logging for troubleshooting</p>
+            </div>
+            <input type="checkbox" id="debugMode" />
+          </div>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>🚀 Experimental Features</label>
+              <p>Enable beta features (may be unstable)</p>
+            </div>
+            <input type="checkbox" id="experimentalFeatures" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="settings-footer">
+        <p>💡 Changes are saved automatically</p>
+        <p>🔄 Close this tab to return to browsing</p>
+        <p>📧 Need help? Contact support or check the documentation</p>
+      </div>
+    </div>
+
+    <script src="settings.js"></script>
+  </body>
+</html>

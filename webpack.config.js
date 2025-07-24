@@ -40,6 +40,10 @@ var options = {
   entry: {
     options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
+    settings: [
+      path.join(__dirname, 'src', 'pages', 'Settings', 'settings.js'),
+      path.join(__dirname, 'src', 'pages', 'Settings', 'settings.css'),
+    ],
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.js'),
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.js'),
     devtools: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.js'),
@@ -192,6 +196,7 @@ var options = {
         },
       ],
     }),
+
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'pages', 'Options', 'index.html'),
       filename: 'options.html',
@@ -214,6 +219,12 @@ var options = {
       template: path.join(__dirname, 'src', 'pages', 'Panel', 'index.html'),
       filename: 'panel.html',
       chunks: ['panel'],
+      cache: false,
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'pages', 'Settings', 'index.html'),
+      filename: 'settings.html',
+      chunks: ['settings'],
       cache: false,
     }),
   ].filter(Boolean),

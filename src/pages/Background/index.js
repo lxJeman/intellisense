@@ -38,28 +38,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleShortAIAnswerRequest(message.data, sender, sendResponse);
       break;
 
-    case 'GET_USER_PREFERENCES':
-      handleGetUserPreferences(sendResponse);
+    case 'GET_AVAILABLE_LANGUAGES':
+      handleGetAvailableLanguages(sendResponse);
       break;
 
-    case 'SAVE_USER_PREFERENCES':
-      handleSaveUserPreferences(message.data, sendResponse);
+    case 'SET_USER_LANGUAGE':
+      handleSetUserLanguage(message.data, sendResponse);
       break;
 
-    case 'DETECT_LANGUAGE':
-      handleDetectLanguage(message.data, sendResponse);
-      break;
-
-    case 'REQUEST_ENHANCED_GRAMMAR_CORRECTION':
-      handleEnhancedGrammarCorrectionRequest(
-        message.data,
-        sender,
-        sendResponse
-      );
-      break;
-
-    case 'REPORT_CORRECTION_ISSUE':
-      handleReportCorrectionIssue(message.data, sender, sendResponse);
+    case 'GET_USER_LANGUAGE':
+      handleGetUserLanguage(sendResponse);
       break;
 
     default:
@@ -85,16 +73,8 @@ async function handleTextInputCapture(inputData, sender, sendResponse) {
   try {
     // Auto-process text if it's long enough
     if (inputData.textContent.length > 10) {
-      // Use enhanced grammar correction with safe defaults
-      const result = await groqAPI.correctGrammarWithUserPrefs(
-        inputData.textContent,
-        {
-          // Override with safe defaults to prevent unwanted translation
-          allowTranslation: false,
-          preserveMeaning: true,
-          fixOnly: 'both',
-        }
-      );
+      // Use simple grammar correction with user's selected language
+      const result = await groqAPI.correctGrammar(inputData.textContent);
 
       console.log('📄 Enhanced grammar correction result:', {
         hasChanges: result.hasChanges,
@@ -134,13 +114,8 @@ async function handleGrammarCorrectionRequest(
       requestData.text.substring(0, 50) + '...'
     );
 
-    // Use enhanced grammar correction with safe defaults
-    const result = await groqAPI.correctGrammarWithUserPrefs(requestData.text, {
-      // Override with safe defaults to prevent unwanted translation
-      allowTranslation: false,
-      preserveMeaning: true,
-      fixOnly: 'both',
-    });
+    // Use simple grammar correction with user's selected language
+    const result = await groqAPI.correctGrammar(requestData.text);
 
     sendResponse({
       success: true,
@@ -165,11 +140,9 @@ async function handleAutocompleteRequest(requestData, sender, sendResponse) {
       requestData.text.substring(0, 30) + '...'
     );
 
-    const result = await requestManager.requestAutocomplete(
+    const result = await groqAPI.getAutocompleteSuggestions(
       requestData.text,
-      requestData.context || '',
-      requestData.elementId,
-      groqAPI
+      requestData.context || ''
     );
 
     sendResponse({
@@ -236,20 +209,20 @@ async function handleShortAIAnswerRequest(requestData, sender, sendResponse) {
 }
 
 /**
- * Handle get user preferences request
+ * Handle get available languages request
  */
-async function handleGetUserPreferences(sendResponse) {
+function handleGetAvailableLanguages(sendResponse) {
   try {
-    console.log('🎯 User preferences requested');
+    console.log('🌐 Available languages requested');
 
-    const preferences = await groqAPI.getUserPreferences();
+    const languages = groqAPI.getAvailableLanguages();
 
     sendResponse({
       success: true,
-      data: preferences,
+      data: languages,
     });
   } catch (error) {
-    console.error('❌ Failed to get user preferences:', error);
+    console.error('❌ Failed to get available languages:', error);
     sendResponse({
       success: false,
       error: error.message,
@@ -258,20 +231,21 @@ async function handleGetUserPreferences(sendResponse) {
 }
 
 /**
- * Handle save user preferences request
+ * Handle set user language request
  */
-async function handleSaveUserPreferences(preferences, sendResponse) {
+async function handleSetUserLanguage(languageCode, sendResponse) {
   try {
-    console.log('💾 Saving user preferences:', preferences);
+    console.log('🌐 Setting user language to:', languageCode);
 
-    const savedPrefs = await groqAPI.saveUserPreferences(preferences);
+    await groqAPI.setUserLanguage(languageCode);
 
     sendResponse({
       success: true,
-      data: savedPrefs,
+      message: 'Language updated successfully',
+      currentLanguage: groqAPI.getCurrentLanguage(),
     });
   } catch (error) {
-    console.error('❌ Failed to save user preferences:', error);
+    console.error('❌ Failed to set user language:', error);
     sendResponse({
       success: false,
       error: error.message,
@@ -280,89 +254,22 @@ async function handleSaveUserPreferences(preferences, sendResponse) {
 }
 
 /**
- * Handle language detection request
+ * Handle get user language request
  */
-function handleDetectLanguage(requestData, sendResponse) {
+async function handleGetUserLanguage(sendResponse) {
   try {
-    console.log(
-      '🔍 Language detection requested for:',
-      requestData.text.substring(0, 30) + '...'
-    );
+    console.log('🌐 Getting user language');
 
-    const detectedLanguage = groqAPI.detectLanguageSmart(requestData.text);
+    const result = await chrome.storage.local.get(['userSelectedLanguage']);
+    const languageCode = result.userSelectedLanguage || 'en'; // Default to English
 
     sendResponse({
       success: true,
-      data: {
-        language: detectedLanguage,
-        text: requestData.text,
-        timestamp: Date.now(),
-      },
+      data: languageCode,
+      currentLanguage: groqAPI.getCurrentLanguage(),
     });
   } catch (error) {
-    console.error('❌ Language detection failed:', error);
-    sendResponse({
-      success: false,
-      error: error.message,
-    });
-  }
-}
-
-/**
- * Handle enhanced grammar correction request with user options
- */
-async function handleEnhancedGrammarCorrectionRequest(
-  requestData,
-  sender,
-  sendResponse
-) {
-  try {
-    console.log('🔧 Enhanced grammar correction requested with options:', {
-      textLength: requestData.text.length,
-      options: requestData.options,
-    });
-
-    const result = await groqAPI.correctGrammarWithOptions(
-      requestData.text,
-      requestData.options
-    );
-
-    sendResponse({
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    console.error('❌ Enhanced grammar correction failed:', error);
-    sendResponse({
-      success: false,
-      error: error.message,
-    });
-  }
-}
-
-/**
- * Handle correction issue report
- */
-async function handleReportCorrectionIssue(requestData, sender, sendResponse) {
-  try {
-    console.log('📝 Correction issue reported:', {
-      issueType: requestData.issueType,
-      elementId: requestData.elementId,
-    });
-
-    const report = await groqAPI.reportCorrectionIssue(
-      requestData.originalText,
-      requestData.correctedText || requestData.originalText,
-      requestData.issueType,
-      requestData.userFeedback || ''
-    );
-
-    sendResponse({
-      success: true,
-      data: report,
-    });
-  } catch (error) {
-    console.error('❌ Failed to report correction issue:', error);
+    console.error('❌ Failed to get user language:', error);
     sendResponse({
       success: false,
       error: error.message,
