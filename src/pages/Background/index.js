@@ -54,6 +54,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleSentenceContinuationRequest(message.data, sender, sendResponse);
       break;
 
+    case 'REQUEST_QUICK_SPELLING_CORRECTION':
+      handleQuickSpellingCorrectionRequest(message.data, sender, sendResponse);
+      break;
+
+    case 'GET_PRESET_MODE':
+      handleGetPresetMode(sendResponse);
+      break;
+
+    case 'SET_PRESET_MODE':
+      handleSetPresetMode(message.data, sendResponse);
+      break;
+
     default:
       console.warn('Unknown message type:', message.type);
       sendResponse({ success: false, error: 'Unknown message type' });
@@ -306,6 +318,81 @@ async function handleSentenceContinuationRequest(
     });
   } catch (error) {
     console.error('❌ Sentence continuation failed:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle quick spelling correction request
+ */
+async function handleQuickSpellingCorrectionRequest(
+  requestData,
+  sender,
+  sendResponse
+) {
+  try {
+    console.log(
+      '🔤 Quick spelling correction requested for:',
+      requestData.text.substring(0, 50) + '...'
+    );
+
+    const result = await groqAPI.quickSpellingCorrection(requestData.text);
+
+    sendResponse({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('❌ Quick spelling correction failed:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle get preset mode request
+ */
+async function handleGetPresetMode(sendResponse) {
+  try {
+    console.log('⚙️ Getting preset mode');
+
+    const result = await chrome.storage.local.get(['presetMode']);
+    const presetMode = result.presetMode || 'full'; // Default to full mode
+
+    sendResponse({
+      success: true,
+      data: presetMode,
+    });
+  } catch (error) {
+    console.error('❌ Failed to get preset mode:', error);
+    sendResponse({
+      success: false,
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Handle set preset mode request
+ */
+async function handleSetPresetMode(presetMode, sendResponse) {
+  try {
+    console.log('⚙️ Setting preset mode to:', presetMode);
+
+    await chrome.storage.local.set({ presetMode: presetMode });
+
+    sendResponse({
+      success: true,
+      message: 'Preset mode updated successfully',
+      data: presetMode,
+    });
+  } catch (error) {
+    console.error('❌ Failed to set preset mode:', error);
     sendResponse({
       success: false,
       error: error.message,

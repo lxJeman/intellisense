@@ -18,6 +18,7 @@ let settings = {
 let stats = null;
 let availableLanguages = [];
 let selectedLanguage = 'en';
+let presetMode = 'full';
 let loading = false;
 
 // DOM Elements
@@ -57,6 +58,13 @@ function initializeElements() {
     // Selects
     languageSelect: document.getElementById('languageSelect'),
     debounceDelay: document.getElementById('debounceDelay'),
+    presetModeSelect: document.getElementById('presetModeSelect'),
+
+    // Preset Mode Elements
+    presetInfo: document.getElementById('presetInfo'),
+    presetTitle: document.getElementById('presetTitle'),
+    presetDescription: document.getElementById('presetDescription'),
+    presetFeatures: document.getElementById('presetFeatures'),
 
     // AI Answer Test
     aiAnswerTest: document.getElementById('aiAnswerTest'),
@@ -67,8 +75,10 @@ function initializeElements() {
 
     // Stats
     apiStatus: document.getElementById('apiStatus'),
+    currentPresetMode: document.getElementById('currentPresetMode'),
     cacheSize: document.getElementById('cacheSize'),
     activeRequests: document.getElementById('activeRequests'),
+    currentLanguage: document.getElementById('currentLanguage'),
 
     // Buttons
     clearCacheBtn: document.getElementById('clearCacheBtn'),
@@ -119,6 +129,10 @@ function setupEventListeners() {
     handleSettingChange('debounceDelay', parseInt(e.target.value));
   });
 
+  elements.presetModeSelect.addEventListener('change', (e) => {
+    handlePresetModeChange(e.target.value);
+  });
+
   // Button event listeners
   elements.getAIAnswerBtn.addEventListener('click', getShortAIAnswer);
   elements.clearCacheBtn.addEventListener('click', clearCache);
@@ -135,6 +149,7 @@ async function loadInitialData() {
       loadAPIStats(),
       loadAvailableLanguages(),
       loadUserLanguage(),
+      loadPresetMode(),
     ]);
   } catch (error) {
     console.error('Failed to load initial data:', error);
@@ -252,6 +267,120 @@ async function loadUserLanguage() {
 }
 
 /**
+ * Load preset mode
+ */
+async function loadPresetMode() {
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: 'GET_PRESET_MODE',
+    });
+
+    if (response.success) {
+      presetMode = response.data;
+      updatePresetModeUI();
+    }
+  } catch (error) {
+    console.error('Failed to load preset mode:', error);
+  }
+}
+
+/**
+ * Handle preset mode change
+ */
+async function handlePresetModeChange(mode) {
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: 'SET_PRESET_MODE',
+      data: mode,
+    });
+
+    if (response.success) {
+      presetMode = mode;
+      updatePresetModeUI();
+      showNotification('⚙️ Preset mode updated successfully!');
+      console.log('Preset mode updated successfully');
+    }
+  } catch (error) {
+    console.error('Failed to update preset mode:', error);
+    showNotification('❌ Failed to update preset mode', 'error');
+  }
+}
+
+/**
+ * Update preset mode UI
+ */
+function updatePresetModeUI() {
+  if (!elements.presetModeSelect) return;
+
+  elements.presetModeSelect.value = presetMode;
+
+  const presetInfo = getPresetModeInfo(presetMode);
+
+  if (elements.presetTitle) {
+    elements.presetTitle.textContent = presetInfo.title;
+  }
+
+  if (elements.presetDescription) {
+    elements.presetDescription.textContent = presetInfo.description;
+  }
+
+  if (elements.presetFeatures) {
+    elements.presetFeatures.innerHTML = presetInfo.features
+      .map(
+        (feature) =>
+          `<span class="${
+            feature.enabled ? 'feature-enabled' : 'feature-disabled'
+          }">${feature.icon} ${feature.name}</span>`
+      )
+      .join('');
+  }
+}
+
+/**
+ * Get preset mode information
+ */
+function getPresetModeInfo(mode) {
+  switch (mode) {
+    case 'minimalistic':
+      return {
+        title: '🎯 Minimalistic Mode',
+        description:
+          'Only grammar correction enabled. Clean, distraction-free writing experience with minimal AI assistance.',
+        features: [
+          { name: 'Grammar Correction', icon: '✅', enabled: true },
+          { name: 'Spelling Correction', icon: '❌', enabled: false },
+          { name: 'Autocomplete', icon: '❌', enabled: false },
+          { name: 'Continuations', icon: '❌', enabled: false },
+        ],
+      };
+    case 'basic':
+      return {
+        title: '🔤 Basic Mode',
+        description:
+          'Only spelling correction enabled. Minimal interference, just fixes typos and spelling mistakes.',
+        features: [
+          { name: 'Grammar Correction', icon: '❌', enabled: false },
+          { name: 'Spelling Correction', icon: '✅', enabled: true },
+          { name: 'Autocomplete', icon: '❌', enabled: false },
+          { name: 'Continuations', icon: '❌', enabled: false },
+        ],
+      };
+    default: // 'full'
+      return {
+        title: '🚀 Full Mode',
+        description:
+          'All features enabled including grammar correction, spelling correction, autocomplete, and sentence continuations.',
+        features: [
+          { name: 'Grammar Correction', icon: '✅', enabled: true },
+          { name: 'Spelling Correction', icon: '✅', enabled: true },
+          { name: 'Autocomplete', icon: '✅', enabled: true },
+          { name: 'Continuations', icon: '✅', enabled: true },
+        ],
+      };
+  }
+}
+
+/**
  * Handle language change
  */
 async function handleLanguageChange(languageCode) {
@@ -263,6 +392,7 @@ async function handleLanguageChange(languageCode) {
 
     if (response.success) {
       selectedLanguage = languageCode;
+      updateStatsUI(); // Update the current language in status
       showNotification('🌐 Language updated successfully!');
       console.log('Language updated successfully');
     }
@@ -370,15 +500,41 @@ function updateStatsUI() {
 
   // API Status
   const apiInitialized = stats.groqAPI?.initialized;
-  elements.apiStatus.textContent = apiInitialized ? '✅ Ready' : '❌ Error';
-  elements.apiStatus.className = apiInitialized ? 'status-good' : 'status-bad';
+  if (elements.apiStatus) {
+    elements.apiStatus.textContent = apiInitialized ? '✅ Ready' : '❌ Error';
+    elements.apiStatus.className = apiInitialized
+      ? 'status-good'
+      : 'status-bad';
+  }
+
+  // Current Preset Mode
+  if (elements.currentPresetMode) {
+    const presetInfo = getPresetModeInfo(presetMode);
+    elements.currentPresetMode.textContent = presetInfo.title;
+  }
 
   // Cache Size
-  elements.cacheSize.textContent = `${stats.groqAPI?.cacheSize || 0} items`;
+  if (elements.cacheSize) {
+    elements.cacheSize.textContent = `${stats.groqAPI?.cacheSize || 0} items`;
+  }
 
   // Active Requests
-  elements.activeRequests.textContent =
-    stats.requestManager?.activeRequests || 0;
+  if (elements.activeRequests) {
+    elements.activeRequests.textContent =
+      stats.requestManager?.activeRequests || 0;
+  }
+
+  // Current Language
+  if (elements.currentLanguage) {
+    const currentLang = availableLanguages.find(
+      (lang) => lang.code === selectedLanguage
+    );
+    if (currentLang) {
+      elements.currentLanguage.textContent = `${currentLang.flag} ${currentLang.name}`;
+    } else {
+      elements.currentLanguage.textContent = '🌐 Loading...';
+    }
+  }
 }
 
 /**
@@ -397,6 +553,10 @@ function updateUI() {
   // Update selects
   elements.debounceDelay.value = settings.debounceDelay;
   elements.languageSelect.value = selectedLanguage;
+  elements.presetModeSelect.value = presetMode;
+
+  // Update preset mode UI
+  updatePresetModeUI();
 
   // Update AI answer test visibility
   toggleAIAnswerTest(settings.shortAIAnswer);

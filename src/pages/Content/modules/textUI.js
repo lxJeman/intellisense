@@ -16,9 +16,12 @@ class TextUI {
     this.processedTexts = new Map(); // Track processed texts to prevent infinite loops
     this.lastCorrectionTime = new Map(); // Track last correction time per element
     this.languageUI = null; // Will be set by content script
+    this.presetMode = 'full'; // Default preset mode
     this.settings = {
       showGrammarCorrections: true,
       showAutocomplete: true,
+      showSpellingCorrection: true,
+      showContinuations: true,
       debounceDelay: 3000, // INCREASED to 3 seconds as requested
     };
 
@@ -30,6 +33,60 @@ class TextUI {
     this.setupKeyboardHandlers();
     this.setupEnhancedKeyboardHandlers();
     this.injectStyles();
+    this.loadPresetMode();
+  }
+
+  /**
+   * Load preset mode from storage and update settings
+   */
+  async loadPresetMode() {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'GET_PRESET_MODE',
+      });
+
+      if (response.success) {
+        this.presetMode = response.data;
+        this.applyPresetMode(this.presetMode);
+        console.log('⚙️ Preset mode loaded:', this.presetMode);
+      }
+    } catch (error) {
+      console.error('Failed to load preset mode:', error);
+    }
+  }
+
+  /**
+   * Apply preset mode settings
+   */
+  applyPresetMode(mode) {
+    switch (mode) {
+      case 'minimalistic':
+        // Only grammar correction enabled
+        this.settings.showGrammarCorrections = true;
+        this.settings.showAutocomplete = false;
+        this.settings.showSpellingCorrection = false;
+        this.settings.showContinuations = false;
+        console.log('🎯 Minimalistic mode: Grammar correction only');
+        break;
+
+      case 'basic':
+        // Only spelling correction enabled
+        this.settings.showGrammarCorrections = false;
+        this.settings.showAutocomplete = false;
+        this.settings.showSpellingCorrection = true;
+        this.settings.showContinuations = false;
+        console.log('🔤 Basic mode: Spelling correction only');
+        break;
+
+      default: // 'full'
+        // All features enabled
+        this.settings.showGrammarCorrections = true;
+        this.settings.showAutocomplete = true;
+        this.settings.showSpellingCorrection = true;
+        this.settings.showContinuations = true;
+        console.log('🚀 Full mode: All features enabled');
+        break;
+    }
   }
 
   setupKeyboardHandlers() {
@@ -202,11 +259,33 @@ class TextUI {
     // Track processed text
     this.processedTexts.set(elementId, textHash);
 
-    // SEQUENTIAL PROCESSING as requested:
-    // 1. Grammar correction → 2. Autocomplete → 3. Sentence completion/continuation
-    if (text.length > 15 && this.settings.showGrammarCorrections) {
-      console.log('🔄 Starting sequential processing: Grammar correction');
-      this.startSequentialProcessing(element, text, elementId);
+    // PRESET MODE PROCESSING - Different processing based on preset mode
+    if (text.length > 5) {
+      switch (this.presetMode) {
+        case 'basic':
+          // Basic mode: Only spelling correction
+          if (this.settings.showSpellingCorrection) {
+            console.log('🔤 Basic mode: Quick spelling correction');
+            this.requestQuickSpellingCorrection(element, text);
+          }
+          break;
+
+        case 'minimalistic':
+          // Minimalistic mode: Only grammar correction
+          if (this.settings.showGrammarCorrections && text.length > 15) {
+            console.log('🎯 Minimalistic mode: Grammar correction only');
+            this.requestAutomaticGrammarCorrection(element, text);
+          }
+          break;
+
+        default: // 'full'
+          // Full mode: All features with sequential processing
+          if (text.length > 15 && this.settings.showGrammarCorrections) {
+            console.log('🚀 Full mode: Starting sequential processing');
+            this.startSequentialProcessing(element, text, elementId);
+          }
+          break;
+      }
     }
   }
 
@@ -688,6 +767,49 @@ class TextUI {
     };
 
     document.addEventListener('keydown', keyHandler);
+  }
+
+  /**
+   * Request quick spelling correction (Basic mode)
+   */
+  async requestQuickSpellingCorrection(element, text) {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'REQUEST_QUICK_SPELLING_CORRECTION',
+        data: { text, elementId: this.getElementId(element) },
+      });
+
+      if (response.success && response.data.hasChanges) {
+        this.applyQuickSpellingCorrection(element, response.data);
+      }
+    } catch (error) {
+      console.error('Quick spelling correction failed:', error);
+    }
+  }
+
+  /**
+   * Apply quick spelling correction automatically
+   */
+  applyQuickSpellingCorrection(element, correctionData) {
+    const success = this.textReplacer.replaceText(
+      element,
+      correctionData.corrected,
+      {
+        preserveSelection: true,
+        addToUndo: true,
+        animateChange: false, // Seamless correction
+      }
+    );
+
+    if (success) {
+      console.log(
+        '✅ Spelling automatically corrected:',
+        correctionData.original,
+        '→',
+        correctionData.corrected
+      );
+      // No notification for seamless experience
+    }
   }
 
   /**

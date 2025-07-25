@@ -397,6 +397,131 @@ Provide 3 completions in ${this.userLanguage}:`,
   }
 
   // ========================================
+  // QUICK SPELLING CORRECTOR
+  // ========================================
+
+  /**
+   * Quick spelling correction - preserves format, case, and structure
+   * Only fixes spelling mistakes, doesn't change grammar or style
+   */
+  async quickSpellingCorrection(text) {
+    if (!this.isInitialized) {
+      throw new Error('Groq API not initialized');
+    }
+
+    if (!text || text.trim().length < 2) {
+      return { corrected: text, original: text, hasChanges: false };
+    }
+
+    // Try Chrome's built-in spell checker first if available
+    const chromeResult = await this.tryChromiumSpellCheck(text);
+    if (chromeResult) {
+      return chromeResult;
+    }
+
+    // Fallback to Groq API for spelling correction
+    const cacheKey = this.getCacheKey(text, 'spelling');
+    const cached = this.getCachedResponse(cacheKey);
+    if (cached) return cached;
+
+    try {
+      console.log(
+        `🔤 Quick spelling correction for: "${text.substring(0, 50)}..."`
+      );
+
+      const completion = await this.groq.chat.completions.create({
+        model: 'llama3-8b-8192',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a spelling correction assistant. Your task is to:
+1. ONLY fix spelling mistakes - do NOT change grammar, punctuation, or sentence structure
+2. Preserve the original formatting, capitalization, and case exactly
+3. Do NOT change the meaning, style, or tone
+4. Do NOT add or remove words unless they are clearly misspelled
+5. Do NOT translate - keep the same language as input
+6. Return ONLY the corrected text with spelling fixes, no explanations
+7. If no spelling errors are found, return the text exactly as provided
+
+CRITICAL: Only fix obvious spelling mistakes. Preserve everything else exactly.`,
+          },
+          {
+            role: 'user',
+            content: `Fix only spelling mistakes in this text, preserve everything else exactly: ${text}`,
+          },
+        ],
+        max_tokens: Math.min(400, text.length * 2),
+        temperature: 0.1, // Very low temperature for consistent spelling fixes
+      });
+
+      const correctedText =
+        completion.choices[0]?.message?.content?.trim() || text;
+
+      // Clean up any AI response artifacts
+      let cleanedText = correctedText
+        .replace(
+          /^(Here is the corrected text:\s*["']?|The corrected text is:\s*["']?)/i,
+          ''
+        )
+        .replace(/["']?\s*$/, '');
+
+      // If the correction is drastically different, likely an error - use original
+      if (Math.abs(cleanedText.length - text.length) > text.length * 0.3) {
+        console.log('⚠️ Spelling correction too different, using original');
+        cleanedText = text;
+      }
+
+      const hasChanges = cleanedText !== text;
+
+      const result = {
+        corrected: cleanedText,
+        original: text,
+        hasChanges: hasChanges,
+        method: 'groq',
+        targetLanguage: this.userLanguage,
+        model: 'llama3-8b-8192',
+        timestamp: Date.now(),
+      };
+
+      this.setCachedResponse(cacheKey, result);
+      console.log(
+        `✅ Quick spelling correction completed: ${
+          hasChanges ? 'Changes made' : 'No changes'
+        }`
+      );
+
+      return result;
+    } catch (error) {
+      console.error('❌ Quick spelling correction failed:', error);
+      return { corrected: text, original: text, hasChanges: false };
+    }
+  }
+
+  /**
+   * Try to use Chrome's built-in spell checker if available
+   */
+  async tryChromiumSpellCheck(text) {
+    try {
+      // Check if Chrome spell check API is available
+      if (
+        typeof chrome !== 'undefined' &&
+        chrome.runtime &&
+        chrome.runtime.getManifest
+      ) {
+        // This is a placeholder for Chrome's spell check API
+        // Chrome doesn't expose a direct spell check API to extensions
+        // But we can simulate it or use other browser APIs if available
+        console.log('🔍 Chrome spell check not directly available');
+        return null;
+      }
+      return null;
+    } catch (error) {
+      console.log('🔍 Chrome spell check not available, using Groq fallback');
+      return null;
+    }
+  }
+
+  // ========================================
   // SENTENCE CONTINUATION
   // ========================================
 

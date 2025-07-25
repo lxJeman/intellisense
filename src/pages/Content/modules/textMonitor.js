@@ -206,8 +206,25 @@ class TextMonitor {
   /**
    * Trigger thinking mode - request sentence continuations
    */
-  triggerThinkingMode(element, elementId, completedText) {
+  async triggerThinkingMode(element, elementId, completedText) {
     console.log('🧠 Thinking mode activated for:', elementId);
+
+    // Check preset mode - continuations only work in full mode
+    try {
+      const presetResponse = await chrome.runtime.sendMessage({
+        type: 'GET_PRESET_MODE',
+      });
+
+      if (presetResponse.success && presetResponse.data !== 'full') {
+        console.log(
+          '⏭️ Skipping continuation - not in full mode:',
+          presetResponse.data
+        );
+        return;
+      }
+    } catch (error) {
+      console.warn('Failed to check preset mode, defaulting to full mode');
+    }
 
     // Get surrounding context (previous sentences)
     const sentences = completedText

@@ -128,6 +128,41 @@ What is the best programmer or dev blog writer?</textarea
           </div>
         </div>
 
+        <!-- Preset Mode Section -->
+        <div class="settings-section">
+          <h2>⚙️ Preset Modes</h2>
+
+          <div class="setting-item">
+            <div class="setting-info">
+              <label>🎛️ Current Preset Mode</label>
+              <p>Choose your preferred level of AI assistance</p>
+            </div>
+            <select id="presetModeSelect" class="preset-select">
+              <option value="full">🚀 Full - All features enabled</option>
+              <option value="minimalistic">
+                🎯 Minimalistic - Grammar correction only
+              </option>
+              <option value="basic">🔤 Basic - Spelling correction only</option>
+            </select>
+          </div>
+
+          <div class="preset-info" id="presetInfo">
+            <div class="preset-description">
+              <h4 id="presetTitle">🚀 Full Mode</h4>
+              <p id="presetDescription">
+                All features enabled including grammar correction, spelling
+                correction, autocomplete, and sentence continuations.
+              </p>
+              <div class="preset-features" id="presetFeatures">
+                <span class="feature-enabled">✅ Grammar Correction</span>
+                <span class="feature-enabled">✅ Spelling Correction</span>
+                <span class="feature-enabled">✅ Autocomplete</span>
+                <span class="feature-enabled">✅ Continuations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- System Status Section -->
         <div class="settings-section">
           <h2>📊 System Status</h2>
@@ -137,12 +172,20 @@ What is the best programmer or dev blog writer?</textarea
               <span id="apiStatus" class="status-good">⏳ Loading...</span>
             </div>
             <div class="stat-item">
+              <span>Current Mode:</span>
+              <span id="currentPresetMode">🚀 Full</span>
+            </div>
+            <div class="stat-item">
               <span>Cache Size:</span>
               <span id="cacheSize">0 items</span>
             </div>
             <div class="stat-item">
               <span>Active Requests:</span>
               <span id="activeRequests">0</span>
+            </div>
+            <div class="stat-item">
+              <span>Current Language:</span>
+              <span id="currentLanguage">🌐 Loading...</span>
             </div>
             <div class="stat-item">
               <span>Language Support:</span>

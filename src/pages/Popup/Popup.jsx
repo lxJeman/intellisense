@@ -5,11 +5,13 @@ const Popup = () => {
   const [stats, setStats] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [availableLanguages, setAvailableLanguages] = useState([]);
+  const [presetMode, setPresetMode] = useState('full');
 
   useEffect(() => {
     loadAPIStats();
     loadUserLanguage();
     loadAvailableLanguages();
+    loadPresetMode();
   }, []);
 
   const loadAPIStats = async () => {
@@ -54,6 +56,20 @@ const Popup = () => {
     }
   };
 
+  const loadPresetMode = async () => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'GET_PRESET_MODE'
+      });
+      
+      if (response.success) {
+        setPresetMode(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to load preset mode:', error);
+    }
+  };
+
   const handleLanguageChange = async (languageCode) => {
     try {
       const response = await chrome.runtime.sendMessage({
@@ -66,6 +82,44 @@ const Popup = () => {
       }
     } catch (error) {
       console.error('Failed to update language:', error);
+    }
+  };
+
+  const handlePresetModeChange = async (mode) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'SET_PRESET_MODE',
+        data: mode
+      });
+      
+      if (response.success) {
+        setPresetMode(mode);
+      }
+    } catch (error) {
+      console.error('Failed to update preset mode:', error);
+    }
+  };
+
+  const getPresetModeInfo = (mode) => {
+    switch (mode) {
+      case 'minimalistic':
+        return {
+          icon: '🎯',
+          name: 'Minimalistic',
+          description: 'Grammar correction only'
+        };
+      case 'basic':
+        return {
+          icon: '🔤',
+          name: 'Basic',
+          description: 'Spelling correction only'
+        };
+      default:
+        return {
+          icon: '🚀',
+          name: 'Full',
+          description: 'All features enabled'
+        };
     }
   };
 
@@ -95,6 +149,41 @@ const Popup = () => {
           padding: '20px',
           marginBottom: '20px'
         }}>
+          <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>⚙️ Preset Mode</h3>
+          <select
+            value={presetMode}
+            onChange={(e) => handlePresetModeChange(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '1rem',
+              background: 'white',
+              color: '#333',
+              marginBottom: '10px'
+            }}
+          >
+            <option value="full">🚀 Full - All features enabled</option>
+            <option value="minimalistic">🎯 Minimalistic - Grammar correction only</option>
+            <option value="basic">🔤 Basic - Spelling correction only</option>
+          </select>
+          <div style={{ 
+            fontSize: '0.85rem', 
+            opacity: 0.8, 
+            fontStyle: 'italic',
+            color: '#333'
+          }}>
+            {getPresetModeInfo(presetMode).description}
+          </div>
+        </div>
+
+        <div style={{ 
+          background: 'rgba(255,255,255,0.2)', 
+          borderRadius: '12px', 
+          padding: '20px',
+          marginBottom: '20px'
+        }}>
           <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>🌐 Current Language</h3>
           <select
             value={selectedLanguage}
@@ -117,21 +206,7 @@ const Popup = () => {
           </select>
         </div>
 
-        {stats && (
-          <div style={{ 
-            background: 'rgba(255,255,255,0.2)', 
-            borderRadius: '12px', 
-            padding: '20px',
-            marginBottom: '20px'
-          }}>
-            <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>📊 Status</h3>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-              API: {stats.groqAPI?.initialized ? '✅ Ready' : '❌ Error'}<br/>
-              Cache: {stats.groqAPI?.cacheSize || 0} items<br/>
-              Language: {getCurrentLanguageInfo().flag} {getCurrentLanguageInfo().name}
-            </div>
-          </div>
-        )}
+
       </div>
 
       <button
