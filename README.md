@@ -11,6 +11,12 @@
 
 IntelliSense AI Writing Assistant is a Chrome extension that provides real-time grammar correction, spelling fixes, autocomplete suggestions, and intelligent sentence continuations powered by advanced AI technology.
 
+## 🎥 Video Showcase
+
+Watch IntelliSense in action!  
+[![Watch the video](https://img.youtube.com/vi/LR3smyQL7Hc/0.jpg)](https://youtu.be/LR3smyQL7Hc?si=10aPL63L75lIIjW4)
+
+
 ## ✨ Features
 
 ### 🎯 **Three Preset Modes**
