@@ -1,150 +1,274 @@
 <img src="src/assets/img/icon-128.png" width="64"/>
 
-# Chrome Extension (MV3) Boilerplate with React 18 and Webpack 5
+# IntelliSense AI Writing Assistant
 
-[![npm](https://img.shields.io/npm/v/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
-[![npm-download](https://img.shields.io/npm/dw/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
-[![npm](https://img.shields.io/npm/dm/chrome-extension-boilerplate-react)](https://www.npmjs.com/package/chrome-extension-boilerplate-react)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue?logo=google-chrome)](https://chrome.google.com/webstore)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-green)](https://developer.chrome.com/docs/extensions/mv3/)
+[![React 18](https://img.shields.io/badge/React-18-blue?logo=react)](https://reactjs.org)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-purple?logo=openai)](https://groq.com)
 
-## Announcements
+> **🚀 An intelligent AI-powered writing assistant that helps you write better, faster, and more accurately across the web.**
 
-- Recently updated from **[React](https://reactjs.org)** ~~17~~ to **18**!
-- **_This boilerplate adopts [Manifest V3](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-overview/)!_**
-  - For V2 users, please check out the [manifest-v2](https://github.com/lxieyang/chrome-extension-boilerplate-react/tree/manifest-v2) branch, or use version [3.x](https://www.npmjs.com/package/chrome-extension-boilerplate-react/v/3.3.0).
-  - Check out the [Manifest V3 Migration Guide](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-migration/).
-- Recently added [devtools](https://developer.chrome.com/docs/extensions/mv3/devtools/) Support! Thanks [GeekaholicLin](https://github.com/lxieyang/chrome-extension-boilerplate-react/issues/17)!
-- Recently updated from **[Webpack Dev Server](https://webpack.js.org/configuration/dev-server/)** ~~3.x~~ to **4.x** and **[Webpack](https://webpack.js.org/)** ~~4~~ to **5**!
-- Recently added [TypeScript](https://www.typescriptlang.org/) Support!
+IntelliSense AI Writing Assistant is a Chrome extension that provides real-time grammar correction, spelling fixes, autocomplete suggestions, and intelligent sentence continuations powered by advanced AI technology.
 
-## Features
+## ✨ Features
 
-This is a basic Chrome Extensions boilerplate to help you write modular and modern Javascript code, load CSS easily and [automatic reload the browser on code changes](https://webpack.github.io/docs/webpack-dev-server.html#automatic-refresh).
+### 🎯 **Three Preset Modes**
 
-This boilerplate is updated with:
+- **🚀 Full Mode**: Complete AI writing assistance with all features enabled
+- **🎯 Minimalistic Mode**: Grammar correction only for distraction-free writing
+- **🔤 Basic Mode**: Spelling correction only for minimal interference
 
-- [Chrome Extension Manifest V3](https://developer.chrome.com/docs/extensions/mv3/intro/mv3-overview/)
-- [React 18](https://reactjs.org)
-- [Webpack 5](https://webpack.js.org/)
-- [Webpack Dev Server 4](https://webpack.js.org/configuration/dev-server/)
-- [React Refresh](https://www.npmjs.com/package/react-refresh)
-- [react-refresh-webpack-plugin](https://github.com/pmmmwh/react-refresh-webpack-plugin)
-- [eslint-config-react-app](https://www.npmjs.com/package/eslint-config-react-app)
-- [Prettier](https://prettier.io/)
-- [TypeScript](https://www.typescriptlang.org/)
+### 🔧 **Core Features**
 
-This boilerplate is heavily inspired by and adapted from [https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate), with additional support for React 18 features, Webpack 5, and Webpack Dev Server 4.
+- **✅ Real-time Grammar Correction**: Automatic grammar fixes as you type
+- **🔤 Quick Spelling Correction**: Instant spelling fixes with format preservation
+- **💡 Smart Autocomplete**: Context-aware word and phrase completions (3 options)
+- **🧠 Thinking Mode**: Intelligent sentence continuations after completing thoughts
+- **🌍 70+ Language Support**: Multi-language correction and translation
+- **⚡ Smart Caching**: Efficient processing with intelligent caching system
 
-Please open up an issue to nudge me to keep the npm packages up-to-date. FYI, it takes time to make different packages with different versions work together nicely.
+### 🎨 **User Experience**
 
-## Installing and Running
+- **Seamless Integration**: Works on all text inputs across the web
+- **Non-intrusive UI**: Clean, professional interface that doesn't distract
+- **Keyboard Navigation**: Full keyboard support for all features
+- **Real-time Processing**: Instant feedback with smart debouncing
+- **Dropdown Selection**: Choose from multiple AI-generated options
 
-### Procedures:
+## 📦 Installation
 
-1. Check if your [Node.js](https://nodejs.org/) version is >= **18**.
-2. Clone this repository.
-3. Change the package's `name`, `description`, and `repository` fields in `package.json`.
-4. Change the name of your extension on `src/manifest.json`.
-5. Run `npm install` to install the dependencies.
-6. Run `npm start`
-7. Load your extension on Chrome following:
-   1. Access `chrome://extensions/`
-   2. Check `Developer mode`
-   3. Click on `Load unpacked extension`
-   4. Select the `build` folder.
-8. Happy hacking.
+### Option 1: Install from Chrome Web Store (Recommended)
 
-## Structure
+1. Visit the [Chrome Web Store page](https://chrome.google.com/webstore) (link coming soon)
+2. Click "Add to Chrome"
+3. Confirm installation
+4. Configure your API key and preferences
 
-All your extension's code must be placed in the `src` folder.
+### Option 2: Install from Release ZIP
 
-The boilerplate is already prepared to have a popup, an options page, a background page, and a new tab page (which replaces the new tab page of your browser). But feel free to customize these.
+1. **Download the latest release**:
 
-## TypeScript
+   - Go to the [Releases page](https://github.com/your-repo/releases)
+   - Download the latest `intellisense-x.x.x.zip` file
 
-This boilerplate now supports TypeScript! The `Options` Page is implemented using TypeScript. Please refer to `src/pages/Options/` for example usages.
+2. **Extract and install**:
 
-## Webpack auto-reload and HRM
+   - Extract the ZIP file to a folder on your computer
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" (toggle in top-right corner)
+   - Click "Load unpacked"
+   - Select the extracted folder
+   - The extension will be installed and ready to use
 
-To make your workflow much more efficient this boilerplate uses the [webpack server](https://webpack.github.io/docs/webpack-dev-server.html) to development (started with `npm start`) with auto reload feature that reloads the browser automatically every time that you save some file in your editor.
+3. **Configure the extension**:
+   - Click the extension icon in your browser toolbar
+   - Set your preferred language and preset mode
+   - Open full settings for advanced configuration
 
-You can run the dev mode on other port if you want. Just specify the env var `port` like this:
+### Option 3: Development Installation
+
+1. **Prerequisites**:
+
+   - [Node.js](https://nodejs.org/) version >= 18
+   - [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+
+2. **Clone and build**:
+
+   ```bash
+   git clone https://github.com/your-repo/intellisense-ai-assistant.git
+   cd intellisense-ai-assistant
+   npm install
+   npm run build
+   ```
+
+3. **Load in Chrome**:
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `build` folder
+
+## ⚙️ Configuration
+
+### 🔑 API Key Setup
+
+1. Get your Groq API key from [Groq Console](https://console.groq.com)
+2. Create `secrets.development.js` (for development) or `secrets.production.js` (for production):
+   ```javascript
+   export default {
+     AI_API_KEY: 'your-groq-api-key-here',
+     DEBUG_MODE: true, // Set to false for production
+   };
+   ```
+
+### 🎛️ Preset Modes
+
+Choose your preferred level of AI assistance:
+
+| Feature             | Full Mode | Minimalistic | Basic |
+| ------------------- | --------- | ------------ | ----- |
+| Grammar Correction  | ✅        | ✅           | ❌    |
+| Spelling Correction | ✅        | ❌           | ✅    |
+| Autocomplete        | ✅        | ❌           | ❌    |
+| Continuations       | ✅        | ❌           | ❌    |
+| UI Effects          | ✅        | ❌           | ❌    |
+
+### 🌍 Language Support
+
+- **70+ languages** supported for correction and translation
+- **Automatic language detection** with manual override
+- **Preserve original language** or translate to preferred language
+- **Context-aware corrections** that maintain meaning and tone
+
+## 🚀 Usage
+
+### Basic Usage
+
+1. **Start typing** in any text field on any website
+2. **Watch for suggestions** that appear automatically
+3. **Use keyboard shortcuts**:
+   - `Tab` - Accept autocomplete suggestion
+   - `Escape` - Dismiss suggestions
+   - `Arrow Keys` - Navigate continuation options
+   - `Enter` - Apply selected continuation
+
+### Advanced Features
+
+- **Thinking Mode**: Complete a sentence with `.`, `?`, or `!` and pause - get 3 continuation options
+- **Quick Settings**: Click extension icon for instant mode switching
+- **Full Settings**: Right-click extension → Options for detailed configuration
+- **Language Control**: Switch languages on-the-fly for different contexts
+
+## 🏗️ Technical Architecture
+
+### Built With
+
+- **Frontend**: React 18, Webpack 5, TypeScript
+- **AI Engine**: Groq API with Llama3-8B-8192 model
+- **Extension**: Chrome Manifest V3
+- **Styling**: Modern CSS with responsive design
+- **Development**: Hot reload, ESLint, Prettier
+
+### Project Structure
 
 ```
-$ PORT=6002 npm run start
+src/
+├── pages/
+│   ├── Background/     # Service worker and API handling
+│   ├── Content/        # Content scripts and UI injection
+│   ├── Popup/          # Extension popup interface
+│   └── Settings/       # Full settings page
+├── assets/             # Icons and static resources
+└── manifest.json       # Extension configuration
 ```
 
-## Content Scripts
+### Key Components
 
-Although this boilerplate uses the webpack dev server, it's also prepared to write all your bundles files on the disk at every code change, so you can point, on your extension manifest, to your bundles that you want to use as [content scripts](https://developer.chrome.com/extensions/content_scripts), but you need to exclude these entry points from hot reloading [(why?)](https://github.com/samuelsimoes/chrome-extension-webpack-boilerplate/issues/4#issuecomment-261788690). To do so you need to expose which entry points are content scripts on the `webpack.config.js` using the `chromeExtensionBoilerplate -> notHotReload` config. Look the example below.
+- **TextMonitor**: Monitors user input across all text fields
+- **GroqAPI**: Handles AI requests and response processing
+- **TextUI**: Manages user interface and interactions
+- **TextReplacer**: Handles text replacement and undo functionality
 
-Let's say that you want use the `myContentScript` entry point as content script, so on your `webpack.config.js` you will configure the entry point and exclude it from hot reloading, like this:
+## 🔧 Development
 
-```js
-{
-  …
-  entry: {
-    myContentScript: "./src/js/myContentScript.js"
-  },
-  chromeExtensionBoilerplate: {
-    notHotReload: ["myContentScript"]
-  }
-  …
-}
+### Development Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server with hot reload
+npm start
+
+# Build for production
+NODE_ENV=production npm run build
+
+# Run on custom port
+PORT=6002 npm start
 ```
 
-and on your `src/manifest.json`:
+### Testing
 
-```json
-{
-  "content_scripts": [
-    {
-      "matches": ["https://www.google.com/*"],
-      "js": ["myContentScript.bundle.js"]
-    }
-  ]
-}
+```bash
+# Run tests
+npm test
+
+# Test specific features
+npm run test:grammar
+npm run test:autocomplete
+npm run test:continuations
 ```
 
-## Intelligent Code Completion
+### Code Quality
 
-Thanks to [@hudidit](https://github.com/lxieyang/chrome-extension-boilerplate-react/issues/4)'s kind suggestions, this boilerplate supports chrome-specific intelligent code completion using [@types/chrome](https://www.npmjs.com/package/@types/chrome).
+```bash
+# Format code
+npm run prettier
 
-## Packing
+# Lint code
+npm run lint
 
-After the development of your extension run the command
-
-```
-$ NODE_ENV=production npm run build
-```
-
-Now, the content of `build` folder will be the extension ready to be submitted to the Chrome Web Store. Just take a look at the [official guide](https://developer.chrome.com/webstore/publish) to more infos about publishing.
-
-## Secrets
-
-If you are developing an extension that talks with some API you probably are using different keys for testing and production. Is a good practice you not commit your secret keys and expose to anyone that have access to the repository.
-
-To this task this boilerplate import the file `./secrets.<THE-NODE_ENV>.js` on your modules through the module named as `secrets`, so you can do things like this:
-
-_./secrets.development.js_
-
-```js
-export default { key: '123' };
+# Type checking
+npm run type-check
 ```
 
-_./src/popup.js_
+## 📊 Performance
 
-```js
-import secrets from 'secrets';
-ApiCall({ key: secrets.key });
-```
+- **Smart Caching**: 30-minute cache with intelligent invalidation
+- **Debounced Processing**: 500ms input debouncing, 1.5s thinking mode delay
+- **Rate Limiting**: 3-second rate limiting for API calls
+- **Memory Efficient**: Automatic cleanup of old cache entries
+- **Minimal Impact**: Lightweight content script with lazy loading
 
-:point_right: The files with name `secrets.*.js` already are ignored on the repository.
+## 🔒 Privacy & Security
 
-## Resources:
+- **Local Processing**: Text processing happens locally when possible
+- **Secure API**: All API calls use HTTPS encryption
+- **No Data Storage**: No personal data stored permanently
+- **Password Protection**: Automatically skips password fields
+- **User Control**: Full control over what gets processed
 
-- [Webpack documentation](https://webpack.js.org/concepts/)
-- [Chrome Extension documentation](https://developer.chrome.com/extensions/getstarted)
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Documentation**: Check our [Wiki](https://github.com/your-repo/wiki)
+- **Issues**: Report bugs on [GitHub Issues](https://github.com/your-repo/issues)
+- **Discussions**: Join [GitHub Discussions](https://github.com/your-repo/discussions)
+- **Email**: Contact us at support@intellisense-ai.com
+
+## 🎯 Roadmap
+
+- [ ] **Voice Input**: Speech-to-text integration
+- [ ] **Custom Models**: Support for custom AI models
+- [ ] **Team Features**: Shared settings and style guides
+- [ ] **Analytics**: Writing improvement analytics
+- [ ] **Mobile Support**: Extension for mobile browsers
+- [ ] **Offline Mode**: Basic features without internet
+
+## 🙏 Acknowledgments
+
+- **Groq**: For providing the AI API infrastructure
+- **Chrome Extension Boilerplate**: Base project structure
+- **React Community**: For the amazing ecosystem
+- **Contributors**: All the developers who helped build this
 
 ---
 
-Michael Xieyang Liu | [Website](https://lxieyang.github.io)
+**Made with ❤️ for better writing everywhere**
+
+_IntelliSense AI Writing Assistant - Write better, faster, smarter._
